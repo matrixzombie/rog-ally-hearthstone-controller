@@ -91,8 +91,11 @@ KBgMinionsForSale := "g"
 KBgHand := "c"
 KBgTavernTier := "t"
 KBgUpgradeTavern := "u"
+KBgUpgradeTavernFast := "+u"
 KBgFreeze := "f"
+KBgFreezeFast := "+f"
 KBgRefresh := "r"
+KBgRefreshFast := "+r"
 KBgHeroPower := "p"
 KBgOppHeroPower := "+p"
 KBgBuddy := "d"
@@ -294,7 +297,8 @@ PollController(*) {
     global KTradeForge, KPlayHistory, KAnomalies, KRelatedCard, KOriginalCard
     global KCurrentMinionAttackHero, KAllMinionsAttackHero, KEmotes
     global KBgGold, KBgMinionsForSale, KBgHand, KBgTavernTier, KBgUpgradeTavern
-    global KBgFreeze, KBgRefresh, KBgHeroPower, KBgOppHeroPower, KBgBuddy
+    global KBgUpgradeTavernFast, KBgFreeze, KBgFreezeFast, KBgRefresh, KBgRefreshFast
+    global KBgHeroPower, KBgOppHeroPower, KBgBuddy
     global KBgMyLeaderboard, KBgMyLeaderboardQuick, KBgNextOpponentStats
     global KBgNextOpponentStatsQuick, KBgLeaderboardTop, KBgSecondsLeft
     global KBgSecretsQuests, KBgOppSecretsQuests, KBgQuestReward, KBgOppQuestReward
@@ -356,13 +360,21 @@ PollController(*) {
     HandleRepeat("stickPrevLine", stickUp, KPrevLine)
     HandleRepeat("stickNextLine", stickDown, KNextLine)
 
-    ; Right stick provides the accessibility mod's horizontal-list reading
-    ; commands without stealing primary controls: first/last item and current/rest
-    ; of card text. These are safe read/navigation commands, not gameplay actions.
-    HandleTap("rightStickFirst", rightStickLeft, KFirstItem)
-    HandleTap("rightStickLast", rightStickRight, KLastItem)
-    HandleTap("rightStickRepeatLine", rightStickUp, KRepeatCurrentLine)
-    HandleTap("rightStickReadRest", rightStickDown, KReadRestOfItem)
+    ; Right stick in base mode provides the accessibility mod's horizontal-list
+    ; reading commands without stealing primary controls: first/last item and
+    ; current/rest of card text. Trigger layers reuse right stick for mode-specific
+    ; lower-priority info.
+    if (layer = "base") {
+        HandleTap("rightStickFirst", rightStickLeft, KFirstItem)
+        HandleTap("rightStickLast", rightStickRight, KLastItem)
+        HandleTap("rightStickRepeatLine", rightStickUp, KRepeatCurrentLine)
+        HandleTap("rightStickReadRest", rightStickDown, KReadRestOfItem)
+    } else {
+        HandleTap("rightStickFirst", false, KFirstItem)
+        HandleTap("rightStickLast", false, KLastItem)
+        HandleTap("rightStickRepeatLine", false, KRepeatCurrentLine)
+        HandleTap("rightStickReadRest", false, KReadRestOfItem)
+    }
 
     if (CurrentMode = "battlegrounds") {
         ; Battlegrounds: base mode puts high-frequency recruit-phase actions on
@@ -381,13 +393,21 @@ PollController(*) {
             if (layer = "self") {
                 HandleTap("bg_lt_dpad_up", povUp, KKeywords)
                 HandleTap("bg_lt_dpad_down", povDown, KEnchantments)
-                HandleTap("bg_lt_dpad_left", povLeft, KBgTrinkets)
-                HandleTap("bg_lt_dpad_right", povRight, KBgBuddy)
+                HandleTap("bg_lt_dpad_left", povLeft, KBgSecretsQuests)
+                HandleTap("bg_lt_dpad_right", povRight, KBgTavernTier)
+                HandleTap("bg_lt_rs_up", rightStickUp, KBgQuestReward)
+                HandleTap("bg_lt_rs_down", rightStickDown, KAnomalies)
+                HandleTap("bg_lt_rs_left", rightStickLeft, KBgTrinkets)
+                HandleTap("bg_lt_rs_right", rightStickRight, KBgBuddy)
             } else {
                 HandleTap("bg_rt_dpad_up", povUp, KBgMyLeaderboardQuick)
                 HandleTap("bg_rt_dpad_down", povDown, KBgNextOpponentStats)
                 HandleTap("bg_rt_dpad_left", povLeft, KBgLeaderboardTop)
                 HandleTap("bg_rt_dpad_right", povRight, KBgNextOpponentStatsQuick)
+                HandleTap("bg_rt_rs_up", rightStickUp, KBgOppQuestReward)
+                HandleTap("bg_rt_rs_down", rightStickDown, KBgOppSecretsQuests)
+                HandleTap("bg_rt_rs_left", rightStickLeft, KBgOppTrinkets)
+                HandleTap("bg_rt_rs_right", rightStickRight, KBgOppHeroPower)
             }
         }
 
@@ -420,7 +440,7 @@ PollController(*) {
 
         if (PressedEdge("Y", yBtn)) {
             if (layer = "self")
-                SendKey(KBgTavernTier)
+                SendKey(KBgUpgradeTavernFast)
             else if (layer = "opponent")
                 SendKey(KBgNextOpponentStats)
             else
@@ -429,27 +449,27 @@ PollController(*) {
 
         if (PressedEdge("LB", lb)) {
             if (layer = "self")
-                SendKey(KBgSecretsQuests)
+                SendKey(KBgFreeze)
             else if (layer = "opponent")
                 SendKey(KBgOppTrinkets)
             else
-                SendKey(KBgFreeze)
+                SendKey(KBgFreezeFast)
         }
 
         if (PressedEdge("RB", rb)) {
             if (layer = "self")
-                SendKey(KBgQuestReward)
+                SendKey(KBgRefresh)
             else if (layer = "opponent")
                 SendKey(KBgOppQuestReward)
             else
-                SendKey(KBgRefresh)
+                SendKey(KBgRefreshFast)
         }
 
         viewTap := (layer = "base") ? KHelp : KAnomalies
         HandleTapOrHold("View", viewBtn, viewTap, "__TOGGLE_MODE__", 700)
 
-        menuTap := (layer = "self") ? KAnomalies : (layer = "opponent") ? KBgNextOpponentStats : KBgSecondsLeft
-        menuHold := (layer = "base") ? KBgUpgradeTavern : ""
+        menuTap := (layer = "self") ? KBgBuddy : (layer = "opponent") ? KBgNextOpponentStats : KBgSecondsLeft
+        menuHold := (layer = "base") ? KBgUpgradeTavernFast : (layer = "self") ? KBgUpgradeTavern : ""
         HandleTapOrHold("Menu", menuBtn, menuTap, menuHold, EndTurnHoldMs)
 
         if (EnableStickClickInfo && PressedEdge("L3", l3))

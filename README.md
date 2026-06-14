@@ -113,10 +113,10 @@ Hold **View** to switch to Battlegrounds mode. The design keeps normal navigatio
 | B | Backspace | Go back / stop leaderboard reading |
 | X | C | Read hand |
 | Y | G | Read minions for sale |
-| LB | F | Freeze/unfreeze tavern, with confirmation |
-| RB | R | Refresh tavern, with confirmation/cost readout |
+| LB | Shift+F | Freeze/unfreeze tavern without confirmation |
+| RB | Shift+R | Refresh tavern without confirmation |
 | Tap Menu/Start | E | Read seconds left in recruit phase |
-| Hold Menu/Start | U | Upgrade tavern, with confirmation |
+| Hold Menu/Start | Shift+U | Upgrade tavern without confirmation |
 | Tap View | F1 | Help |
 | Hold View | Script mode toggle | Switch Battlegrounds ↔ Standard/Arena |
 
@@ -129,14 +129,19 @@ Hold **LT** and press:
 | A | A | Read gold |
 | B | P | Read your hero power |
 | X | Space | Select minion to reorder |
-| Y | T | Read tavern tier and Bartender |
-| LB | S | Read your secrets or quests |
-| RB | W | Read your quest reward if applicable |
-| D-pad Left | Q | Read your trinkets if applicable |
-| D-pad Right | D | Read buddy meter / Hero Buddy card if applicable |
+| Y | Shift+U | Upgrade tavern without confirmation |
+| LB | F | Freeze/unfreeze tavern, with confirmation |
+| RB | R | Refresh tavern, with confirmation/cost readout |
+| D-pad Left | S | Read your secrets or quests |
+| D-pad Right | T | Read tavern tier and Bartender |
 | D-pad Up | I | Focused card keywords |
 | D-pad Down | K | Focused card enchantments/stats |
-| Tap Menu/Start | O | Read minion families/races and anomalies |
+| Right stick Left | Q | Read your trinkets if applicable |
+| Right stick Right | D | Read buddy meter / Hero Buddy card if applicable |
+| Right stick Up | W | Read your quest reward if applicable |
+| Right stick Down | O | Read minion families/races and anomalies |
+| Tap Menu/Start | D | Read buddy meter / Hero Buddy card if applicable |
+| Hold Menu/Start | U | Upgrade tavern, with confirmation |
 | Tap View | O | Read minion families/races and anomalies |
 
 ### Battlegrounds RT: opponent/leaderboard layer
@@ -155,14 +160,58 @@ Hold **RT** and press:
 | D-pad Right | Shift+N | Quickly read next opponent stats without changing focus |
 | D-pad Up | Shift+M | Quickly read your stats without changing focus |
 | D-pad Down | N | Read next opponent's leaderboard stats |
+| Right stick Left | Shift+Q | Read opponent trinkets if applicable |
+| Right stick Right | Shift+P | Read opponent hero power during combat |
+| Right stick Up | Shift+W | Read opponent quest reward if applicable |
+| Right stick Down | Shift+S | Read opponent secrets/quests during combat |
 | Tap Menu/Start | N | Read next opponent's leaderboard stats |
 | Tap View | O | Read minion families/races and anomalies |
 
 Safety notes:
 
-- Shift+U upgrade without confirmation and Shift+R refresh without confirmation are intentionally not mapped.
-- Refresh/freeze/upgrade use the confirming versions of the Battlegrounds commands.
-- Upgrade tavern is on a short hold to avoid accidental gold spending.
+- No-confirm refresh/freeze are on the bumpers because they are high-frequency recruit-phase actions.
+- No-confirm upgrade is available two ways: **LT+Y** for fast use, or **hold Menu/Start** to reduce accidents.
+- Confirming versions are still available on LT+LB, LT+RB, and LT+hold Menu/Start.
+
+### Battlegrounds command coverage
+
+Commands from the site's Battlegrounds list are covered as follows:
+
+| Official command | Controller mapping |
+|---|---|
+| Read minions for sale `G` | Y |
+| Read hand `C` | X |
+| Read gold `A` | LT+A |
+| Keywords `I` | LT+D-pad Up |
+| Enchantments/stats `K` | LT+D-pad Down |
+| Tavern tier/Bartender `T` | LT+D-pad Right |
+| Upgrade tavern `U` | LT+hold Menu/Start |
+| Upgrade tavern without confirmation `Shift+U` | LT+Y or hold Menu/Start |
+| Freeze/unfreeze `F` | LT+LB |
+| Freeze/unfreeze without confirmation `Shift+F` | LB |
+| Refresh tavern `R` | LT+RB |
+| Refresh tavern without confirmation `Shift+R` | RB |
+| Your hero power `P` | LT+B |
+| Opponent hero power `Shift+P` | RT+A or RT+right stick Right |
+| Buddy meter / Hero Buddy `D` | LT+right stick Right or LT+tap Menu |
+| Buy/sell minion `Enter` | A |
+| Select minion to reorder `Space` | LT+X |
+| Reorder selected minion `Left/Right/Home/End` | D-pad/left stick, right stick left/right in base layer |
+| Your leaderboard stats `M` | RT+B |
+| Quick your stats `Shift+M` | RT+D-pad Up |
+| Next opponent stats `N` | RT+Y, RT+D-pad Down, or RT+tap Menu |
+| Quick next opponent stats `Shift+N` | RT+D-pad Right |
+| Leaderboard from top `L` | RT+D-pad Left |
+| Minion families/races/anomalies `O` | LT+right stick Down or trigger+tap View |
+| Seconds left `E` | Tap Menu/Start |
+| Your secrets/quests `S` | LT+D-pad Left |
+| Opponent secrets/quests `Shift+S` | RT+X or RT+right stick Down |
+| Your quest reward `W` | LT+right stick Up |
+| Opponent quest reward `Shift+W` | RT+RB or RT+right stick Up |
+| Your trinkets `Q` | LT+right stick Left |
+| Opponent trinkets `Shift+Q` | RT+LB or RT+right stick Left |
+
+Number-row shortcuts for jumping directly to positions are not individually mapped because there are ten of them and they do not fit cleanly on a comfortable controller layout; use arrows/Home/End instead.
 
 ## Standard/Arena LT: your info/action layer
 
