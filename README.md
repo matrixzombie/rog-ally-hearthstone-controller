@@ -22,7 +22,7 @@ I polished the layout using these controller/accessibility principles:
 - Windows/Xbox gamepad UI conventions map **D-pad/left stick to arrows/focus**, **A to select**, and **B to back**.
 - Xbox accessibility guidance recommends avoiding mandatory rapid inputs, long holds, and complex simultaneous button sequences. This script uses simple taps for most actions and only short deliberate holds for mode toggle and dangerous actions like End Turn or tavern upgrade.
 - Game Accessibility Guidelines recommend remappable/configurable controls and allowing the same input method everywhere. The script keeps everything on the controller while leaving key values editable near the top.
-- Stick-clicks are comparatively awkward and easy to press accidentally on handhelds, so they are no longer required for important commands. They are optional duplicate info only.
+- Stick-clicks are comparatively awkward and easy to press accidentally on handhelds, so they are disabled by default.
 - Frequent actions should be on easy controls: A/B/X/Y, D-pad/stick, and bumpers. Less frequent info is on LT/RT layers.
 
 ## Modes
@@ -79,7 +79,7 @@ ControllerNumbers := [2] ; only the second controller
 | Hold View | Script mode toggle | Switch Standard/Arena ↔ Battlegrounds |
 | Tap Menu/Start | Y | Play history log |
 | Hold Menu/Start | E | End turn |
-| L3/R3 | V / B | Optional duplicate: your hero / your minions |
+| L3/R3 | Disabled by default | Optional duplicate info if enabled in the script |
 
 ## Mulligan phase
 
@@ -129,20 +129,17 @@ Hold **LT** and press:
 | A | A | Read gold |
 | B | P | Read your hero power |
 | X | Space | Select minion to reorder |
-| Y | Shift+U | Upgrade tavern without confirmation |
+| Y | T | Read tavern tier and Bartender |
 | LB | F | Freeze/unfreeze tavern, with confirmation |
 | RB | R | Refresh tavern, with confirmation/cost readout |
 | D-pad Left | S | Read your secrets or quests |
-| D-pad Right | T | Read tavern tier and Bartender |
+| D-pad Right | D | Read buddy meter / Hero Buddy card if applicable |
 | D-pad Up | I | Focused card keywords |
 | D-pad Down | K | Focused card enchantments/stats |
 | Right stick Left | Q | Read your trinkets if applicable |
-| Right stick Right | D | Read buddy meter / Hero Buddy card if applicable |
 | Right stick Up | W | Read your quest reward if applicable |
 | Right stick Down | O | Read minion families/races and anomalies |
-| Tap Menu/Start | D | Read buddy meter / Hero Buddy card if applicable |
 | Hold Menu/Start | U | Upgrade tavern, with confirmation |
-| Tap View | O | Read minion families/races and anomalies |
 
 ### Battlegrounds RT: opponent/leaderboard layer
 
@@ -159,18 +156,11 @@ Hold **RT** and press:
 | D-pad Left | L | Read leaderboard from top; Backspace stops reading |
 | D-pad Right | Shift+N | Quickly read next opponent stats without changing focus |
 | D-pad Up | Shift+M | Quickly read your stats without changing focus |
-| D-pad Down | N | Read next opponent's leaderboard stats |
-| Right stick Left | Shift+Q | Read opponent trinkets if applicable |
-| Right stick Right | Shift+P | Read opponent hero power during combat |
-| Right stick Up | Shift+W | Read opponent quest reward if applicable |
-| Right stick Down | Shift+S | Read opponent secrets/quests during combat |
-| Tap Menu/Start | N | Read next opponent's leaderboard stats |
-| Tap View | O | Read minion families/races and anomalies |
 
 Safety notes:
 
 - No-confirm refresh/freeze are on the bumpers because they are high-frequency recruit-phase actions.
-- No-confirm upgrade is available two ways: **LT+Y** for fast use, or **hold Menu/Start** to reduce accidents.
+- No-confirm upgrade is on **hold Menu/Start** so it is available from base mode but still hard to hit by accident.
 - Confirming versions are still available on LT+LB, LT+RB, and LT+hold Menu/Start.
 
 ### Battlegrounds command coverage
@@ -184,32 +174,32 @@ Commands from the site's Battlegrounds list are covered as follows:
 | Read gold `A` | LT+A |
 | Keywords `I` | LT+D-pad Up |
 | Enchantments/stats `K` | LT+D-pad Down |
-| Tavern tier/Bartender `T` | LT+D-pad Right |
+| Tavern tier/Bartender `T` | LT+Y |
 | Upgrade tavern `U` | LT+hold Menu/Start |
-| Upgrade tavern without confirmation `Shift+U` | LT+Y or hold Menu/Start |
+| Upgrade tavern without confirmation `Shift+U` | Hold Menu/Start |
 | Freeze/unfreeze `F` | LT+LB |
 | Freeze/unfreeze without confirmation `Shift+F` | LB |
 | Refresh tavern `R` | LT+RB |
 | Refresh tavern without confirmation `Shift+R` | RB |
 | Your hero power `P` | LT+B |
-| Opponent hero power `Shift+P` | RT+A or RT+right stick Right |
-| Buddy meter / Hero Buddy `D` | LT+right stick Right or LT+tap Menu |
+| Opponent hero power `Shift+P` | RT+A |
+| Buddy meter / Hero Buddy `D` | LT+D-pad Right |
 | Buy/sell minion `Enter` | A |
 | Select minion to reorder `Space` | LT+X |
 | Reorder selected minion `Left/Right/Home/End` | D-pad/left stick, right stick left/right in base layer |
 | Your leaderboard stats `M` | RT+B |
 | Quick your stats `Shift+M` | RT+D-pad Up |
-| Next opponent stats `N` | RT+Y, RT+D-pad Down, or RT+tap Menu |
+| Next opponent stats `N` | RT+Y |
 | Quick next opponent stats `Shift+N` | RT+D-pad Right |
 | Leaderboard from top `L` | RT+D-pad Left |
-| Minion families/races/anomalies `O` | LT+right stick Down or trigger+tap View |
+| Minion families/races/anomalies `O` | LT+right stick Down |
 | Seconds left `E` | Tap Menu/Start |
 | Your secrets/quests `S` | LT+D-pad Left |
-| Opponent secrets/quests `Shift+S` | RT+X or RT+right stick Down |
+| Opponent secrets/quests `Shift+S` | RT+X |
 | Your quest reward `W` | LT+right stick Up |
-| Opponent quest reward `Shift+W` | RT+RB or RT+right stick Up |
+| Opponent quest reward `Shift+W` | RT+RB |
 | Your trinkets `Q` | LT+right stick Left |
-| Opponent trinkets `Shift+Q` | RT+LB or RT+right stick Left |
+| Opponent trinkets `Shift+Q` | RT+LB |
 
 Number-row shortcuts for jumping directly to positions are not individually mapped because there are ten of them and they do not fit cleanly on a comfortable controller layout; use arrows/Home/End instead.
 
@@ -258,11 +248,11 @@ Hold **RT** and press:
 Near the top of `RogAlly_Hearthstone_Controller.ahk`:
 
 ```ahk
-EnableStickClickInfo := true
+EnableStickClickInfo := false
 EnableAttackFaceShortcuts := false
 ```
 
-- Set `EnableStickClickInfo := false` if stick-clicks are uncomfortable or accidental.
+- Set `EnableStickClickInfo := true` only if you want optional stick-click info shortcuts.
 - `EnableAttackFaceShortcuts` is off by default because Shift+F/Ctrl+F can make attacks you did not intend. If enabled:
   - RT+L3 = currently selected minion attacks opponent hero
   - RT+R3 = all minions attack opponent hero

@@ -35,7 +35,7 @@ global CurrentMode := "standard"   ; "standard" or "battlegrounds". Hold View to
 
 ; Stick-clicks are awkward on handhelds and can happen accidentally while steering.
 ; They are therefore only duplicate/safe info by default, and can be disabled.
-global EnableStickClickInfo := true
+global EnableStickClickInfo := false
 
 ; Powerful "attack face" shortcuts are useful but too easy to fire by mistake on a
 ; controller. Leave off unless you specifically want RT+L3/RT+R3 to attack face.
@@ -394,20 +394,20 @@ PollController(*) {
                 HandleTap("bg_lt_dpad_up", povUp, KKeywords)
                 HandleTap("bg_lt_dpad_down", povDown, KEnchantments)
                 HandleTap("bg_lt_dpad_left", povLeft, KBgSecretsQuests)
-                HandleTap("bg_lt_dpad_right", povRight, KBgTavernTier)
+                HandleTap("bg_lt_dpad_right", povRight, KBgBuddy)
                 HandleTap("bg_lt_rs_up", rightStickUp, KBgQuestReward)
                 HandleTap("bg_lt_rs_down", rightStickDown, KAnomalies)
                 HandleTap("bg_lt_rs_left", rightStickLeft, KBgTrinkets)
-                HandleTap("bg_lt_rs_right", rightStickRight, KBgBuddy)
+                HandleTap("bg_lt_rs_right", rightStickRight, "")
             } else {
                 HandleTap("bg_rt_dpad_up", povUp, KBgMyLeaderboardQuick)
-                HandleTap("bg_rt_dpad_down", povDown, KBgNextOpponentStats)
+                HandleTap("bg_rt_dpad_down", povDown, "")
                 HandleTap("bg_rt_dpad_left", povLeft, KBgLeaderboardTop)
                 HandleTap("bg_rt_dpad_right", povRight, KBgNextOpponentStatsQuick)
-                HandleTap("bg_rt_rs_up", rightStickUp, KBgOppQuestReward)
-                HandleTap("bg_rt_rs_down", rightStickDown, KBgOppSecretsQuests)
-                HandleTap("bg_rt_rs_left", rightStickLeft, KBgOppTrinkets)
-                HandleTap("bg_rt_rs_right", rightStickRight, KBgOppHeroPower)
+                HandleTap("bg_rt_rs_up", rightStickUp, "")
+                HandleTap("bg_rt_rs_down", rightStickDown, "")
+                HandleTap("bg_rt_rs_left", rightStickLeft, "")
+                HandleTap("bg_rt_rs_right", rightStickRight, "")
             }
         }
 
@@ -440,7 +440,7 @@ PollController(*) {
 
         if (PressedEdge("Y", yBtn)) {
             if (layer = "self")
-                SendKey(KBgUpgradeTavernFast)
+                SendKey(KBgTavernTier)
             else if (layer = "opponent")
                 SendKey(KBgNextOpponentStats)
             else
@@ -465,10 +465,10 @@ PollController(*) {
                 SendKey(KBgRefreshFast)
         }
 
-        viewTap := (layer = "base") ? KHelp : KAnomalies
+        viewTap := KHelp
         HandleTapOrHold("View", viewBtn, viewTap, "__TOGGLE_MODE__", 700)
 
-        menuTap := (layer = "self") ? KBgBuddy : (layer = "opponent") ? KBgNextOpponentStats : KBgSecondsLeft
+        menuTap := (layer = "base") ? KBgSecondsLeft : ""
         menuHold := (layer = "base") ? KBgUpgradeTavernFast : (layer = "self") ? KBgUpgradeTavern : ""
         HandleTapOrHold("Menu", menuBtn, menuTap, menuHold, EndTurnHoldMs)
 
