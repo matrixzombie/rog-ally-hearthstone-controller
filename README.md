@@ -261,6 +261,29 @@ EnableAttackFaceShortcuts := false
 
 That duplication is intentional and matches common gamepad UI behavior: D-pad gives precise one-step navigation, while left stick is comfortable for longer browsing. The right stick adds read-only list helpers like Home/End and Shift+Up/Shift+Down, which are especially helpful for mulligan and card text. The important change is that **LB/RB are not duplicate Left/Right**: in Standard/Arena they are previous/next valid play, and in Battlegrounds they are freeze/refresh.
 
+## Confirming controller axes/buttons
+
+If triggers or the right stick do not work, run `Controller_Diagnostic.ahk` on the Windows device.
+
+1. Install AutoHotkey v2.
+2. Run `Controller_Diagnostic.ahk`.
+3. Press/move one control at a time.
+4. Expected results for ROG Ally Gamepad Mode or an Xbox controller:
+   - LT/RT should change `JoyZ`: LT goes below 50, RT goes above 50.
+   - Right stick left/right should change `JoyU`.
+   - Right stick up/down should change `JoyR`.
+   - A/B/X/Y should show buttons 1/2/3/4.
+   - LB/RB should show buttons 5/6.
+   - View/Menu should show buttons 7/8.
+
+If the diagnostic shows a different controller number changing, you can either leave `ControllerNumbers := [1, 2, 3, 4]` or set it to that specific number. If a different axis changes for triggers or right stick, edit these lines in `RogAlly_Hearthstone_Controller.ahk`:
+
+```ahk
+rx := JoyAxis("U") ; right stick horizontal
+ry := JoyAxis("R") ; right stick vertical
+z := JoyAxis("Z")  ; LT/RT trigger axis
+```
+
 ## Install/use
 
 1. Install **AutoHotkey v2** on the ROG Ally or Windows PC.
