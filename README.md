@@ -1,19 +1,19 @@
-# ROG Ally Hearthstone Access controller mapper
+# ROG Ally Hearthstone Controller Mapper
 
-Script: `HearthstoneAccess_RogAlly.ahk`
+Script: `RogAlly_Hearthstone_Controller.ahk`
 
-A public, unofficial AutoHotkey v2 controller mapper for playing standard or arena Hearthstone on an ASUS ROG Ally with [Hearthstone Access](https://hearthstoneaccess.com/).
+A public, unofficial AutoHotkey v2 controller mapper for playing standard or arena Hearthstone on an ASUS ROG Ally. It is designed for players using the accessibility mod documented at [hearthstoneaccess.com](https://hearthstoneaccess.com/).
 
-Shortcut source: https://hearthstoneaccess.com/commands.html
+Keyboard shortcut source: https://hearthstoneaccess.com/commands.html
 
-> This project is not affiliated with Blizzard, ASUS, AutoHotkey, or the Hearthstone Access team/community. It is just a controller mapping script intended to make the existing Hearthstone Access keyboard commands comfortable from the ROG Ally in Gamepad Mode.
+> This project is not affiliated with Blizzard, ASUS, AutoHotkey, or the accessibility mod team/community. It is just a controller mapping script intended to make the mod's existing keyboard commands comfortable from the ROG Ally in Gamepad Mode.
 
 ## Requirements
 
 - ASUS ROG Ally or another Xbox/XInput-style controller
 - Armoury Crate / Command Center set to **Gamepad Mode**
 - [AutoHotkey v2](https://www.autohotkey.com/)
-- Hearthstone with Hearthstone Access installed
+- Hearthstone with the accessibility mod installed
 
 ## Research-based design choices
 
@@ -27,7 +27,7 @@ I polished the layout using these controller/accessibility principles:
 
 ## Base battle layout
 
-| ROG Ally control | Sent key | Hearthstone Access action |
+| ROG Ally control | Sent key | Action |
 |---|---:|---|
 | D-pad / left stick | Arrow keys | Read previous/next item or line |
 | Right stick left/right | Home / End | Read first / last item in the list |
@@ -45,7 +45,7 @@ I polished the layout using these controller/accessibility principles:
 
 ## Mulligan phase
 
-Hearthstone Access does not list separate mulligan-only commands; the mulligan uses the normal horizontal-list/menu commands. The script covers those:
+The accessibility mod does not list separate mulligan-only commands; the mulligan uses the normal horizontal-list/menu commands. The script covers those:
 
 | Mulligan task | Control |
 |---|---|
@@ -100,7 +100,7 @@ Hold **RT** and press:
 
 ## Safety options in the script
 
-Near the top of `HearthstoneAccess_RogAlly.ahk`:
+Near the top of `RogAlly_Hearthstone_Controller.ahk`:
 
 ```ahk
 EnableStickClickInfo := true
@@ -114,7 +114,7 @@ EnableAttackFaceShortcuts := false
 
 ## Why D-pad and stick both navigate
 
-That duplication is intentional and matches common gamepad UI behavior: D-pad gives precise one-step navigation, while left stick is comfortable for longer browsing. The right stick adds read-only list helpers like Home/End and Shift+Up/Shift+Down, which are especially helpful for mulligan and card text. The important change is that **LB/RB are not duplicate Left/Right**; they are now Hearthstone Access's high-value battle commands for previous/next valid play.
+That duplication is intentional and matches common gamepad UI behavior: D-pad gives precise one-step navigation, while left stick is comfortable for longer browsing. The right stick adds read-only list helpers like Home/End and Shift+Up/Shift+Down, which are especially helpful for mulligan and card text. The important change is that **LB/RB are not duplicate Left/Right**; they are now the mod's high-value battle commands for previous/next valid play.
 
 ## Install/use
 

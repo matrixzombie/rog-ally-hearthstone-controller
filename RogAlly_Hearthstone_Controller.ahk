@@ -1,7 +1,7 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
-; Hearthstone Access - ASUS ROG Ally gamepad-mode controller mapper
-; Hearthstone Access shortcut source: https://hearthstoneaccess.com/commands.html
+; ASUS ROG Ally gamepad-mode controller mapper for Hearthstone
+; Keyboard shortcut source: https://hearthstoneaccess.com/commands.html
 ;
 ; Design goals:
 ; - Keep the Ally in Gamepad Mode.
@@ -33,7 +33,7 @@ global EnableStickClickInfo := true
 ; controller. Leave off unless you specifically want RT+L3/RT+R3 to attack face.
 global EnableAttackFaceShortcuts := false
 
-; -------------------- Hearthstone Access shortcuts --------------------
+; -------------------- Accessibility mod shortcuts --------------------
 ; Gameplay/list navigation
 KPrevItem := "{Left}"
 KNextItem := "{Right}"
@@ -86,7 +86,7 @@ global RepeatStates := Map()
 global HoldStates := Map()
 
 SetTimer(PollController, PollMs)
-TrayTip("Hearthstone Access Ally mapper", "Loaded. Gamepad Mode + Hearthstone active window required.", 3)
+TrayTip("ROG Ally Hearthstone mapper", "Loaded. Gamepad Mode + Hearthstone active window required.", 3)
 return
 
 IsHearthstoneActive() {
