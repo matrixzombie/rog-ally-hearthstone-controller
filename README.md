@@ -2,7 +2,7 @@
 
 Script: `RogAlly_Hearthstone_Controller.ahk`
 
-A public, unofficial AutoHotkey v2 controller mapper for playing standard or arena Hearthstone on an ASUS ROG Ally. It is designed for players using the accessibility mod documented at [hearthstoneaccess.com](https://hearthstoneaccess.com/).
+A public, unofficial AutoHotkey v2 controller mapper for playing standard or arena Hearthstone on an ASUS ROG Ally or Xbox/XInput-style controller. It is designed for players using the accessibility mod documented at [hearthstoneaccess.com](https://hearthstoneaccess.com/).
 
 Keyboard shortcut source: https://hearthstoneaccess.com/commands.html
 
@@ -11,7 +11,7 @@ Keyboard shortcut source: https://hearthstoneaccess.com/commands.html
 ## Requirements
 
 - ASUS ROG Ally or another Xbox/XInput-style controller
-- Armoury Crate / Command Center set to **Gamepad Mode**
+- If using the ROG Ally built-in controls: Armoury Crate / Command Center set to **Gamepad Mode**
 - [AutoHotkey v2](https://www.autohotkey.com/)
 - Hearthstone with the accessibility mod installed
 
@@ -24,6 +24,32 @@ I polished the layout using these controller/accessibility principles:
 - Game Accessibility Guidelines recommend remappable/configurable controls and allowing the same input method everywhere. The script keeps everything on the controller while leaving key values editable near the top.
 - Stick-clicks are comparatively awkward and easy to press accidentally on handhelds, so they are no longer required for important commands. They are optional duplicate info only.
 - Frequent actions should be on easy controls: A/B/X/Y, D-pad/stick, and bumpers. Less frequent info is on LT/RT layers.
+
+## Xbox controller support
+
+Yes, this should work with a connected Xbox controller too. The ROG Ally in Gamepad Mode and Xbox controllers both expose the standard XInput-style layout to Windows:
+
+- A/B/X/Y are Joy1/Joy2/Joy3/Joy4
+- LB/RB are Joy5/Joy6
+- View/Menu are Joy7/Joy8
+- L3/R3 are Joy9/Joy10
+- D-pad is JoyPOV
+- Left stick is JoyX/JoyY
+- Right stick is normally JoyU/JoyR
+- LT/RT normally share JoyZ
+
+The script now polls controller numbers **1 through 4**, so it can accept input from either the Ally's built-in controls or a connected Xbox controller. If Windows gives you duplicate/unwanted input, edit this line near the top of the script:
+
+```ahk
+ControllerNumbers := [1, 2, 3, 4]
+```
+
+Examples:
+
+```ahk
+ControllerNumbers := [1] ; only the first controller
+ControllerNumbers := [2] ; only the second controller
+```
 
 ## Base battle layout
 

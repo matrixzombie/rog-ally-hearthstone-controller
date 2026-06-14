@@ -25,6 +25,13 @@ global RepeatInitialMs := 280
 global RepeatEveryMs := 95
 global EndTurnHoldMs := 450        ; hold Menu/Start this long to send End Turn
 
+; Controller support:
+; - Xbox controllers and the ROG Ally's Gamepad Mode both expose an Xbox/XInput-like layout.
+; - By default, poll controllers 1-4 and accept input from any of them. This lets the
+;   same script work with the built-in Ally controls or a connected Xbox controller.
+; - If you get duplicate/unwanted input, set this to just one number, e.g. [1] or [2].
+global ControllerNumbers := [1, 2, 3, 4]
+
 ; Stick-clicks are awkward on handhelds and can happen accidentally while steering.
 ; They are therefore only duplicate/safe info by default, and can be disabled.
 global EnableStickClickInfo := true
@@ -182,6 +189,52 @@ HandleTapOrHold(id, pressed, tapText, holdText, holdMs) {
     }
 }
 
+JoyButton(buttonNumber) {
+    global ControllerNumbers
+    for , n in ControllerNumbers {
+        try pressed := GetKeyState(n "Joy" buttonNumber)
+        catch
+            continue
+        if (pressed)
+            return true
+    }
+    return false
+}
+
+JoyAxis(axisName, fallback := 50) {
+    ; Returns the most-deflected value for an axis across enabled controllers.
+    ; This supports either the Ally controls or a connected Xbox controller without
+    ; caring which Windows joystick number it was assigned.
+    global ControllerNumbers
+    best := fallback
+    bestDelta := -1
+    for , n in ControllerNumbers {
+        try v := GetKeyState(n "Joy" axisName)
+        catch
+            continue
+        if (!IsNumber(v))
+            continue
+        delta := Abs(v - 50)
+        if (delta > bestDelta) {
+            best := v
+            bestDelta := delta
+        }
+    }
+    return best
+}
+
+JoyPOVAny() {
+    global ControllerNumbers
+    for , n in ControllerNumbers {
+        try pov := GetKeyState(n "JoyPOV")
+        catch
+            continue
+        if (IsNumber(pov) && pov != -1)
+            return pov
+    }
+    return -1
+}
+
 PollController(*) {
     global AxisDeadzone, RightStickDeadzone, TriggerLow, TriggerHigh, EndTurnHoldMs
     global EnableStickClickInfo, EnableAttackFaceShortcuts
@@ -202,25 +255,25 @@ PollController(*) {
     ; Xbox/ROG Ally buttons exposed through Windows joystick API:
     ; Joy1=A, Joy2=B, Joy3=X, Joy4=Y, Joy5=LB, Joy6=RB,
     ; Joy7=View, Joy8=Menu/Start, Joy9=L3, Joy10=R3.
-    a := GetKeyState("Joy1")
-    b := GetKeyState("Joy2")
-    xBtn := GetKeyState("Joy3")
-    yBtn := GetKeyState("Joy4")
-    lb := GetKeyState("Joy5")
-    rb := GetKeyState("Joy6")
-    viewBtn := GetKeyState("Joy7")
-    menuBtn := GetKeyState("Joy8")
-    l3 := GetKeyState("Joy9")
-    r3 := GetKeyState("Joy10")
+    a := JoyButton(1)
+    b := JoyButton(2)
+    xBtn := JoyButton(3)
+    yBtn := JoyButton(4)
+    lb := JoyButton(5)
+    rb := JoyButton(6)
+    viewBtn := JoyButton(7)
+    menuBtn := JoyButton(8)
+    l3 := JoyButton(9)
+    r3 := JoyButton(10)
 
-    pov := GetKeyState("JoyPOV")
+    pov := JoyPOVAny()
     povUp := (pov = 0 || pov = 4500 || pov = 31500)
     povRight := (pov = 9000 || pov = 4500 || pov = 13500)
     povDown := (pov = 18000 || pov = 13500 || pov = 22500)
     povLeft := (pov = 27000 || pov = 22500 || pov = 31500)
 
-    lx := GetKeyState("JoyX")
-    ly := GetKeyState("JoyY")
+    lx := JoyAxis("X")
+    ly := JoyAxis("Y")
     stickLeft := (lx < 50 - AxisDeadzone)
     stickRight := (lx > 50 + AxisDeadzone)
     stickUp := (ly < 50 - AxisDeadzone)
@@ -229,8 +282,8 @@ PollController(*) {
     ; Right stick is read-only list utility: useful during mulligan/card reading.
     ; On most XInput devices via AHK's legacy joystick API, JoyU = right-stick X
     ; and JoyR = right-stick Y. If your Ally reports these differently, swap them.
-    rx := GetKeyState("JoyU")
-    ry := GetKeyState("JoyR")
+    rx := JoyAxis("U")
+    ry := JoyAxis("R")
     rightStickLeft := (rx < 50 - RightStickDeadzone)
     rightStickRight := (rx > 50 + RightStickDeadzone)
     rightStickUp := (ry < 50 - RightStickDeadzone)
@@ -238,7 +291,7 @@ PollController(*) {
 
     ; XInput controllers normally expose LT/RT as a shared Z axis through the
     ; legacy joystick API: LT lowers it, RT raises it.
-    z := GetKeyState("JoyZ")
+    z := JoyAxis("Z")
     lt := (z < TriggerLow)
     rt := (z > TriggerHigh)
     layer := lt ? "self" : rt ? "opponent" : "base"
