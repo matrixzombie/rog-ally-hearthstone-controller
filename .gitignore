@@ -1,0 +1,14 @@
+# Windows/macOS clutter
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# AutoHotkey generated/local files
+*.bak
+*.tmp
+*.log
+
+# Archives people may build locally
+*.zip
+*.7z
+*.rar
