@@ -2,7 +2,7 @@
 
 Script: `RogAlly_Hearthstone_Controller.ahk`
 
-A public, unofficial AutoHotkey v2 controller mapper for playing standard or arena Hearthstone on an ASUS ROG Ally or Xbox/XInput-style controller. It is designed for players using the accessibility mod documented at [hearthstoneaccess.com](https://hearthstoneaccess.com/).
+A public, unofficial AutoHotkey v2 controller mapper for playing standard, arena, or Battlegrounds Hearthstone on an ASUS ROG Ally or Xbox/XInput-style controller. It is designed for players using the accessibility mod documented at [hearthstoneaccess.com](https://hearthstoneaccess.com/).
 
 Keyboard shortcut source: https://hearthstoneaccess.com/commands.html
 
@@ -20,10 +20,21 @@ Keyboard shortcut source: https://hearthstoneaccess.com/commands.html
 I polished the layout using these controller/accessibility principles:
 
 - Windows/Xbox gamepad UI conventions map **D-pad/left stick to arrows/focus**, **A to select**, and **B to back**.
-- Xbox accessibility guidance recommends avoiding mandatory rapid inputs, long holds, and complex simultaneous button sequences. This script uses simple taps for most actions and only a short deliberate hold for End Turn.
+- Xbox accessibility guidance recommends avoiding mandatory rapid inputs, long holds, and complex simultaneous button sequences. This script uses simple taps for most actions and only short deliberate holds for mode toggle and dangerous actions like End Turn or tavern upgrade.
 - Game Accessibility Guidelines recommend remappable/configurable controls and allowing the same input method everywhere. The script keeps everything on the controller while leaving key values editable near the top.
 - Stick-clicks are comparatively awkward and easy to press accidentally on handhelds, so they are no longer required for important commands. They are optional duplicate info only.
 - Frequent actions should be on easy controls: A/B/X/Y, D-pad/stick, and bumpers. Less frequent info is on LT/RT layers.
+
+## Modes
+
+The script starts in **Standard/Arena mode**.
+
+| Control | Action |
+|---|---|
+| Hold View for about 0.7 seconds | Toggle between Standard/Arena and Battlegrounds mode |
+| Tap View | Help for the current screen/prompt |
+
+A tray notification and beep confirm the mode change.
 
 ## Xbox controller support
 
@@ -51,7 +62,7 @@ ControllerNumbers := [1] ; only the first controller
 ControllerNumbers := [2] ; only the second controller
 ```
 
-## Base battle layout
+## Standard/Arena base battle layout
 
 | ROG Ally control | Sent key | Action |
 |---|---:|---|
@@ -64,7 +75,8 @@ ControllerNumbers := [2] ; only the second controller
 | Y | B | Look at your minions |
 | LB | Shift+Tab | Previous valid play |
 | RB | Tab | Next valid play |
-| View | F1 | Help for current screen/prompt |
+| Tap View | F1 | Help for current screen/prompt |
+| Hold View | Script mode toggle | Switch Standard/Arena ↔ Battlegrounds |
 | Tap Menu/Start | Y | Play history log |
 | Hold Menu/Start | E | End turn |
 | L3/R3 | V / B | Optional duplicate: your hero / your minions |
@@ -81,12 +93,78 @@ The accessibility mod does not list separate mulligan-only commands; the mulliga
 | Finish/confirm mulligan after choosing cards | A |
 | Jump to first/last offered card | Right stick left/right |
 | Repeat/read rest of focused card text | Right stick up/down |
-| Go back/cancel if HA allows it | B |
+| Go back/cancel if the mod allows it | B |
 | Help for the current prompt | View |
 
 So there is no separate mulligan mode to toggle; use **X for Space** on cards, then **A for Enter** to finish.
 
-## LT: your info/action layer
+## Battlegrounds mode
+
+Hold **View** to switch to Battlegrounds mode. The design keeps normal navigation the same, but moves Battlegrounds recruit-phase actions like refresh/freeze/gold/tavern info onto comfortable controls.
+
+### Battlegrounds base layout
+
+| Control | Sent key | Action |
+|---|---:|---|
+| D-pad / left stick | Arrow keys | Read previous/next item or line |
+| Right stick left/right | Home / End | Read first / last item in the list |
+| Right stick up/down | Shift+Up / Shift+Down | Repeat current line / read rest of current item |
+| A | Enter | Buy/sell minion, confirm, select |
+| B | Backspace | Go back / stop leaderboard reading |
+| X | C | Read hand |
+| Y | G | Read minions for sale |
+| LB | F | Freeze/unfreeze tavern, with confirmation |
+| RB | R | Refresh tavern, with confirmation/cost readout |
+| Tap Menu/Start | E | Read seconds left in recruit phase |
+| Hold Menu/Start | U | Upgrade tavern, with confirmation |
+| Tap View | F1 | Help |
+| Hold View | Script mode toggle | Switch Battlegrounds ↔ Standard/Arena |
+
+### Battlegrounds LT: your/shop layer
+
+Hold **LT** and press:
+
+| Control | Sent key | Action |
+|---|---:|---|
+| A | A | Read gold |
+| B | P | Read your hero power |
+| X | Space | Select minion to reorder |
+| Y | T | Read tavern tier and Bartender |
+| LB | S | Read your secrets or quests |
+| RB | W | Read your quest reward if applicable |
+| D-pad Left | Q | Read your trinkets if applicable |
+| D-pad Right | D | Read buddy meter / Hero Buddy card if applicable |
+| D-pad Up | I | Focused card keywords |
+| D-pad Down | K | Focused card enchantments/stats |
+| Tap Menu/Start | O | Read minion families/races and anomalies |
+| Tap View | O | Read minion families/races and anomalies |
+
+### Battlegrounds RT: opponent/leaderboard layer
+
+Hold **RT** and press:
+
+| Control | Sent key | Action |
+|---|---:|---|
+| A | Shift+P | Read opponent hero power during combat |
+| B | M | Read your leaderboard stats; Backspace stops reading |
+| X | Shift+S | Read opponent secrets/quests during combat |
+| Y | N | Read next opponent's leaderboard stats |
+| LB | Shift+Q | Read opponent trinkets if applicable |
+| RB | Shift+W | Read opponent quest reward if applicable |
+| D-pad Left | L | Read leaderboard from top; Backspace stops reading |
+| D-pad Right | Shift+N | Quickly read next opponent stats without changing focus |
+| D-pad Up | Shift+M | Quickly read your stats without changing focus |
+| D-pad Down | N | Read next opponent's leaderboard stats |
+| Tap Menu/Start | N | Read next opponent's leaderboard stats |
+| Tap View | O | Read minion families/races and anomalies |
+
+Safety notes:
+
+- Shift+U upgrade without confirmation and Shift+R refresh without confirmation are intentionally not mapped.
+- Refresh/freeze/upgrade use the confirming versions of the Battlegrounds commands.
+- Upgrade tavern is on a short hold to avoid accidental gold spending.
+
+## Standard/Arena LT: your info/action layer
 
 Hold **LT** and press:
 
@@ -103,9 +181,10 @@ Hold **LT** and press:
 | D-pad Up | I | Focused card keywords |
 | D-pad Down | K | Focused minion attack/health/enchantments |
 | Tap Menu/Start | T | Trade or forge focused card if possible |
-| View | O | Anomalies affecting current game |
+| Tap View | O | Anomalies affecting current game |
+| Hold View | Script mode toggle | Switch Standard/Arena ↔ Battlegrounds |
 
-## RT: opponent / shifted layer
+## Standard/Arena RT: opponent / shifted layer
 
 Hold **RT** and press:
 
@@ -122,7 +201,8 @@ Hold **RT** and press:
 | D-pad Up | PageUp | Original card lines |
 | D-pad Down | PageDown | Related card lines |
 | Tap Menu/Start | Space | Emotes/squelch when focused on a hero |
-| View | O | Anomalies affecting current game |
+| Tap View | O | Anomalies affecting current game |
+| Hold View | Script mode toggle | Switch Standard/Arena ↔ Battlegrounds |
 
 ## Safety options in the script
 
@@ -140,12 +220,12 @@ EnableAttackFaceShortcuts := false
 
 ## Why D-pad and stick both navigate
 
-That duplication is intentional and matches common gamepad UI behavior: D-pad gives precise one-step navigation, while left stick is comfortable for longer browsing. The right stick adds read-only list helpers like Home/End and Shift+Up/Shift+Down, which are especially helpful for mulligan and card text. The important change is that **LB/RB are not duplicate Left/Right**; they are now the mod's high-value battle commands for previous/next valid play.
+That duplication is intentional and matches common gamepad UI behavior: D-pad gives precise one-step navigation, while left stick is comfortable for longer browsing. The right stick adds read-only list helpers like Home/End and Shift+Up/Shift+Down, which are especially helpful for mulligan and card text. The important change is that **LB/RB are not duplicate Left/Right**: in Standard/Arena they are previous/next valid play, and in Battlegrounds they are freeze/refresh.
 
 ## Install/use
 
-1. Install **AutoHotkey v2** on the ROG Ally.
-2. Put Armoury Crate / Command Center controller mode in **Gamepad Mode**.
-3. Run `HearthstoneAccess_RogAlly.ahk`.
-4. Start Hearthstone with Hearthstone Access.
+1. Install **AutoHotkey v2** on the ROG Ally or Windows PC.
+2. If using the Ally built-in controls, put Armoury Crate / Command Center controller mode in **Gamepad Mode**.
+3. Run `RogAlly_Hearthstone_Controller.ahk`.
+4. Start Hearthstone with the accessibility mod.
 5. If Hearthstone is running as Administrator, run the script as Administrator too.

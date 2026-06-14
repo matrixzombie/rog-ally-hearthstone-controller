@@ -31,6 +31,7 @@ global EndTurnHoldMs := 450        ; hold Menu/Start this long to send End Turn
 ;   same script work with the built-in Ally controls or a connected Xbox controller.
 ; - If you get duplicate/unwanted input, set this to just one number, e.g. [1] or [2].
 global ControllerNumbers := [1, 2, 3, 4]
+global CurrentMode := "standard"   ; "standard" or "battlegrounds". Hold View to toggle.
 
 ; Stick-clicks are awkward on handhelds and can happen accidentally while steering.
 ; They are therefore only duplicate/safe info by default, and can be disabled.
@@ -84,6 +85,31 @@ KCurrentMinionAttackHero := "^f"
 KAllMinionsAttackHero := "+f"
 KEmotes := "{Space}"
 
+; Battlegrounds shortcuts
+KBgGold := "a"
+KBgMinionsForSale := "g"
+KBgHand := "c"
+KBgTavernTier := "t"
+KBgUpgradeTavern := "u"
+KBgFreeze := "f"
+KBgRefresh := "r"
+KBgHeroPower := "p"
+KBgOppHeroPower := "+p"
+KBgBuddy := "d"
+KBgMyLeaderboard := "m"
+KBgMyLeaderboardQuick := "+m"
+KBgNextOpponentStats := "n"
+KBgNextOpponentStatsQuick := "+n"
+KBgLeaderboardTop := "l"
+KBgSecondsLeft := "e"
+KBgSecretsQuests := "s"
+KBgOppSecretsQuests := "+s"
+KBgQuestReward := "w"
+KBgOppQuestReward := "+w"
+KBgTrinkets := "q"
+KBgOppTrinkets := "+q"
+KBgReorder := "{Space}"
+
 ; Global
 KHelp := "{F1}"
 
@@ -117,8 +143,25 @@ ResetStates() {
 }
 
 SendKey(sendText) {
+    if (sendText = "__TOGGLE_MODE__") {
+        ToggleMode()
+        return
+    }
     if (sendText != "")
         Send(sendText)
+}
+
+ToggleMode() {
+    global CurrentMode
+    if (CurrentMode = "standard") {
+        CurrentMode := "battlegrounds"
+        TrayTip("ROG Ally Hearthstone mapper", "Battlegrounds mode", 2)
+        SoundBeep(1200, 80)
+    } else {
+        CurrentMode := "standard"
+        TrayTip("ROG Ally Hearthstone mapper", "Standard/Arena mode", 2)
+        SoundBeep(800, 80)
+    }
 }
 
 PressedEdge(id, pressed) {
@@ -189,10 +232,14 @@ HandleTapOrHold(id, pressed, tapText, holdText, holdMs) {
     }
 }
 
+JoyName(controllerNumber, controlName) {
+    return (controllerNumber = 1) ? "Joy" controlName : controllerNumber "Joy" controlName
+}
+
 JoyButton(buttonNumber) {
     global ControllerNumbers
     for , n in ControllerNumbers {
-        try pressed := GetKeyState(n "Joy" buttonNumber)
+        try pressed := GetKeyState(JoyName(n, buttonNumber))
         catch
             continue
         if (pressed)
@@ -209,7 +256,7 @@ JoyAxis(axisName, fallback := 50) {
     best := fallback
     bestDelta := -1
     for , n in ControllerNumbers {
-        try v := GetKeyState(n "Joy" axisName)
+        try v := GetKeyState(JoyName(n, axisName))
         catch
             continue
         if (!IsNumber(v))
@@ -226,7 +273,7 @@ JoyAxis(axisName, fallback := 50) {
 JoyPOVAny() {
     global ControllerNumbers
     for , n in ControllerNumbers {
-        try pov := GetKeyState(n "JoyPOV")
+        try pov := GetKeyState(JoyName(n, "POV"))
         catch
             continue
         if (IsNumber(pov) && pov != -1)
@@ -237,7 +284,7 @@ JoyPOVAny() {
 
 PollController(*) {
     global AxisDeadzone, RightStickDeadzone, TriggerLow, TriggerHigh, EndTurnHoldMs
-    global EnableStickClickInfo, EnableAttackFaceShortcuts
+    global CurrentMode, EnableStickClickInfo, EnableAttackFaceShortcuts
     global KPrevItem, KNextItem, KPrevLine, KNextLine, KFirstItem, KLastItem
     global KRepeatCurrentLine, KReadRestOfItem, KNextValidPlay, KPrevValidPlay
     global KSelect, KCancel, KEndTurn, KHelp
@@ -246,6 +293,12 @@ PollController(*) {
     global KMySecrets, KOppSecrets, KMyDeckCount, KOppDeckCount, KKeywords, KEnchantments
     global KTradeForge, KPlayHistory, KAnomalies, KRelatedCard, KOriginalCard
     global KCurrentMinionAttackHero, KAllMinionsAttackHero, KEmotes
+    global KBgGold, KBgMinionsForSale, KBgHand, KBgTavernTier, KBgUpgradeTavern
+    global KBgFreeze, KBgRefresh, KBgHeroPower, KBgOppHeroPower, KBgBuddy
+    global KBgMyLeaderboard, KBgMyLeaderboardQuick, KBgNextOpponentStats
+    global KBgNextOpponentStatsQuick, KBgLeaderboardTop, KBgSecondsLeft
+    global KBgSecretsQuests, KBgOppSecretsQuests, KBgQuestReward, KBgOppQuestReward
+    global KBgTrinkets, KBgOppTrinkets, KBgReorder
 
     if (!IsHearthstoneActive()) {
         ResetStates()
@@ -303,13 +356,110 @@ PollController(*) {
     HandleRepeat("stickPrevLine", stickUp, KPrevLine)
     HandleRepeat("stickNextLine", stickDown, KNextLine)
 
-    ; Right stick provides the remaining Hearthstone Access horizontal-list reading
+    ; Right stick provides the accessibility mod's horizontal-list reading
     ; commands without stealing primary controls: first/last item and current/rest
     ; of card text. These are safe read/navigation commands, not gameplay actions.
     HandleTap("rightStickFirst", rightStickLeft, KFirstItem)
     HandleTap("rightStickLast", rightStickRight, KLastItem)
     HandleTap("rightStickRepeatLine", rightStickUp, KRepeatCurrentLine)
     HandleTap("rightStickReadRest", rightStickDown, KReadRestOfItem)
+
+    if (CurrentMode = "battlegrounds") {
+        ; Battlegrounds: base mode puts high-frequency recruit-phase actions on
+        ; reachable controls. LT is your/shop info; RT is opponent/leaderboard info.
+        if (layer = "base") {
+            HandleRepeat("povPrev", povLeft, KPrevItem)
+            HandleRepeat("povNext", povRight, KNextItem)
+            HandleRepeat("povPrevLine", povUp, KPrevLine)
+            HandleRepeat("povNextLine", povDown, KNextLine)
+        } else {
+            HandleRepeat("povPrev", false, KPrevItem)
+            HandleRepeat("povNext", false, KNextItem)
+            HandleRepeat("povPrevLine", false, KPrevLine)
+            HandleRepeat("povNextLine", false, KNextLine)
+
+            if (layer = "self") {
+                HandleTap("bg_lt_dpad_up", povUp, KKeywords)
+                HandleTap("bg_lt_dpad_down", povDown, KEnchantments)
+                HandleTap("bg_lt_dpad_left", povLeft, KBgTrinkets)
+                HandleTap("bg_lt_dpad_right", povRight, KBgBuddy)
+            } else {
+                HandleTap("bg_rt_dpad_up", povUp, KBgMyLeaderboardQuick)
+                HandleTap("bg_rt_dpad_down", povDown, KBgNextOpponentStats)
+                HandleTap("bg_rt_dpad_left", povLeft, KBgLeaderboardTop)
+                HandleTap("bg_rt_dpad_right", povRight, KBgNextOpponentStatsQuick)
+            }
+        }
+
+        if (PressedEdge("A", a)) {
+            if (layer = "self")
+                SendKey(KBgGold)
+            else if (layer = "opponent")
+                SendKey(KBgOppHeroPower)
+            else
+                SendKey(KSelect)
+        }
+
+        if (PressedEdge("B", b)) {
+            if (layer = "self")
+                SendKey(KBgHeroPower)
+            else if (layer = "opponent")
+                SendKey(KBgMyLeaderboard)
+            else
+                SendKey(KCancel)
+        }
+
+        if (PressedEdge("X", xBtn)) {
+            if (layer = "self")
+                SendKey(KBgReorder)
+            else if (layer = "opponent")
+                SendKey(KBgOppSecretsQuests)
+            else
+                SendKey(KBgHand)
+        }
+
+        if (PressedEdge("Y", yBtn)) {
+            if (layer = "self")
+                SendKey(KBgTavernTier)
+            else if (layer = "opponent")
+                SendKey(KBgNextOpponentStats)
+            else
+                SendKey(KBgMinionsForSale)
+        }
+
+        if (PressedEdge("LB", lb)) {
+            if (layer = "self")
+                SendKey(KBgSecretsQuests)
+            else if (layer = "opponent")
+                SendKey(KBgOppTrinkets)
+            else
+                SendKey(KBgFreeze)
+        }
+
+        if (PressedEdge("RB", rb)) {
+            if (layer = "self")
+                SendKey(KBgQuestReward)
+            else if (layer = "opponent")
+                SendKey(KBgOppQuestReward)
+            else
+                SendKey(KBgRefresh)
+        }
+
+        viewTap := (layer = "base") ? KHelp : KAnomalies
+        HandleTapOrHold("View", viewBtn, viewTap, "__TOGGLE_MODE__", 700)
+
+        menuTap := (layer = "self") ? KAnomalies : (layer = "opponent") ? KBgNextOpponentStats : KBgSecondsLeft
+        menuHold := (layer = "base") ? KBgUpgradeTavern : ""
+        HandleTapOrHold("Menu", menuBtn, menuTap, menuHold, EndTurnHoldMs)
+
+        if (EnableStickClickInfo && PressedEdge("L3", l3))
+            SendKey((layer = "opponent") ? KBgOppHeroPower : KBgHeroPower)
+
+        if (EnableStickClickInfo && PressedEdge("R3", r3))
+            SendKey((layer = "opponent") ? KBgNextOpponentStats : KBgMinionsForSale)
+
+        return
+    }
 
     if (layer = "base") {
         HandleRepeat("povPrev", povLeft, KPrevItem)
@@ -396,13 +546,10 @@ PollController(*) {
             SendKey(KNextValidPlay)
     }
 
-    ; View is help in base mode; with a trigger it reads anomalies.
-    if (PressedEdge("View", viewBtn)) {
-        if (layer = "self" || layer = "opponent")
-            SendKey(KAnomalies)
-        else
-            SendKey(KHelp)
-    }
+    ; View is help in base mode; with a trigger it reads anomalies. Hold View
+    ; to toggle Standard/Arena vs Battlegrounds layout.
+    viewTap := (layer = "self" || layer = "opponent") ? KAnomalies : KHelp
+    HandleTapOrHold("View", viewBtn, viewTap, "__TOGGLE_MODE__", 700)
 
     ; Menu/Start: tap = useful but safe, hold = End Turn.
     ; LT+tap trades/forges because it is a self-card action. RT+tap opens emotes,
