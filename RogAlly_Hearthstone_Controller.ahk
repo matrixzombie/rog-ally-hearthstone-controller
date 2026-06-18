@@ -493,8 +493,15 @@ PollController(*) {
     ; current/rest of card text. Trigger layers reuse right stick for mode-specific
     ; lower-priority info.
     if (layer = "base") {
-        HandleTap("rightStickFirst", rightStickLeft, KFirstItem)
-        HandleTap("rightStickLast", rightStickRight, KLastItem)
+        if (CurrentMode = "battlegrounds") {
+            ; In Battlegrounds, valid-play cycling is more useful than Home/End
+            ; during recruit/combat flow. Keep Up/Down as safe reading helpers.
+            HandleTap("rightStickFirst", rightStickLeft, KPrevValidPlay)
+            HandleTap("rightStickLast", rightStickRight, KNextValidPlay)
+        } else {
+            HandleTap("rightStickFirst", rightStickLeft, KFirstItem)
+            HandleTap("rightStickLast", rightStickRight, KLastItem)
+        }
         HandleTap("rightStickRepeatLine", rightStickUp, KRepeatCurrentLine)
         HandleTap("rightStickReadRest", rightStickDown, KReadRestOfItem)
     } else {

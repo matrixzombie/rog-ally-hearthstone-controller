@@ -107,7 +107,7 @@ Hold **View** to switch to Battlegrounds mode. The design keeps normal navigatio
 | Control | Sent key | Action |
 |---|---:|---|
 | D-pad / left stick | Arrow keys | Read previous/next item or line |
-| Right stick left/right | Home / End | Read first / last item in the list |
+| Right stick left/right | Shift+Tab / Tab | Previous / next valid play |
 | Right stick up/down | Shift+Up / Shift+Down | Repeat current line / read rest of current item |
 | A | Enter | Buy/sell minion, confirm, select |
 | B | Backspace | Go back / stop leaderboard reading |
@@ -185,10 +185,11 @@ Commands from the site's Battlegrounds list are covered as follows:
 | Refresh tavern without confirmation `Shift+R` | RB |
 | Your hero power `P` | LT+B |
 | Opponent hero power `Shift+P` | RT+A |
-| Buddy meter / Hero Buddy `D` | LT+right stick Right
+| Buddy meter / Hero Buddy `D` | LT+right stick Right |
 | Buy/sell minion `Enter` | A |
 | Select minion to reorder `Space` | LT+X |
-| Reorder selected minion `Left/Right/Home/End` | D-pad/left stick, right stick left/right in base layer |
+| Reorder selected minion `Left/Right/Home/End` | D-pad/left stick for Left/Right; Home/End not mapped in Battlegrounds mode |
+| Previous/next valid play `Shift+Tab` / `Tab` | Right stick left/right |
 | Your leaderboard stats `M` | RT+B |
 | Quick your stats `Shift+M` | RT+D-pad Up |
 | Next opponent stats `N` | RT+Y |
@@ -203,7 +204,7 @@ Commands from the site's Battlegrounds list are covered as follows:
 | Your trinkets `Q` | LT+right stick Left |
 | Opponent trinkets `Shift+Q` | RT+LB |
 
-Number-row shortcuts for jumping directly to positions are not individually mapped because there are ten of them and they do not fit cleanly on a comfortable controller layout; use arrows/Home/End instead.
+Number-row shortcuts for jumping directly to positions are not individually mapped because there are ten of them and they do not fit cleanly on a comfortable controller layout. In Battlegrounds, right stick left/right is reserved for Shift+Tab/Tab valid-play cycling because that is more useful during play than Home/End.
 
 ## Standard/Arena LT: your info/action layer
 
