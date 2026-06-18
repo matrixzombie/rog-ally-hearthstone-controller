@@ -166,16 +166,36 @@ SendKey(sendText) {
         Send(sendText)
 }
 
+Speak(text) {
+    ; Use Windows SAPI for important mapper status announcements.
+    ; Flag 1 = async, so controller polling is not blocked by speech.
+    static initialized := false
+    static voice := ""
+
+    if (!initialized) {
+        try voice := ComObject("SAPI.SpVoice")
+        catch {
+            initialized := true
+            return
+        }
+        initialized := true
+    }
+
+    if (IsObject(voice)) {
+        try voice.Speak(text, 1)
+    }
+}
+
 ToggleMode() {
     global CurrentMode
     if (CurrentMode = "standard") {
         CurrentMode := "battlegrounds"
         TrayTip("ROG Ally Hearthstone mapper", "Battlegrounds mode", 2)
-        SoundBeep(1200, 80)
+        Speak("Battlegrounds mode")
     } else {
         CurrentMode := "standard"
-        TrayTip("ROG Ally Hearthstone mapper", "Standard/Arena mode", 2)
-        SoundBeep(800, 80)
+        TrayTip("ROG Ally Hearthstone mapper", "Standard and Arena mode", 2)
+        Speak("Standard and Arena mode")
     }
 }
 
@@ -234,7 +254,6 @@ HandleTapOrHold(id, pressed, tapText, holdText, holdMs) {
         } else if (!st.sent && st.holdText != "" && ((now - st.start) >= holdMs)) {
             SendKey(st.holdText)
             st.sent := true
-            SoundBeep(900, 45)
         }
     } else {
         if (st.held && !st.sent && st.tapText != "")
@@ -258,11 +277,9 @@ HandleExitCombo(pressed) {
             ExitComboState.warned := false
         } else if (!ExitComboState.warned && (now - ExitComboState.start) >= 900) {
             TrayTip("ROG Ally Hearthstone mapper", "Keep holding View+Menu to exit...", 1)
-            SoundBeep(700, 45)
             ExitComboState.warned := true
         } else if ((now - ExitComboState.start) >= ExitHoldMs) {
             TrayTip("ROG Ally Hearthstone mapper", "Exiting mapper", 1)
-            SoundBeep(500, 80)
             ExitApp()
         }
         return true

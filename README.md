@@ -24,13 +24,13 @@ The script starts in **Standard/Arena mode**.
 | Hold View for about 0.7 seconds | Toggle between Standard/Arena and Battlegrounds mode |
 | Tap View | Help for the current screen/prompt |
 
-A tray notification and beep confirm the mode change.
+A tray notification appears and Windows SAPI speech announces the active mode.
 
 ## Exiting the mapper
 
-For the current source and future builds, hold **View + Menu/Start** together for about 2 seconds to exit the mapper.
+Preferred method: hold **View + Menu/Start** together for about 2 seconds to exit the mapper.
 
-For the 1.0 `setup.exe` and `standalone.zip` executable downloads, exit from the Windows system tray:
+You can also exit from the Windows system tray:
 
 1. Open the system tray / hidden icons area near the clock.
 2. Find the ROG Ally Hearthstone Controller Mapper / AutoHotkey-style tray icon.
