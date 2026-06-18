@@ -129,14 +129,15 @@ Hold **LT** and press:
 | A | A | Read gold |
 | B | P | Read your hero power |
 | X | Space | Select minion to reorder |
-| Y | T | Read tavern tier and Bartender |
+| Y | B | Read your minions |
 | LB | F | Freeze/unfreeze tavern, with confirmation |
 | RB | R | Refresh tavern, with confirmation/cost readout |
 | D-pad Left | S | Read your secrets or quests |
-| D-pad Right | D | Read buddy meter / Hero Buddy card if applicable |
+| D-pad Right | T | Read tavern tier and Bartender |
 | D-pad Up | I | Focused card keywords |
 | D-pad Down | K | Focused card enchantments/stats |
 | Right stick Left | Q | Read your trinkets if applicable |
+| Right stick Right | D | Read buddy meter / Hero Buddy card if applicable |
 | Right stick Up | W | Read your quest reward if applicable |
 | Right stick Down | O | Read minion families/races and anomalies |
 | Hold Menu/Start | U | Upgrade tavern, with confirmation |
@@ -174,7 +175,8 @@ Commands from the site's Battlegrounds list are covered as follows:
 | Read gold `A` | LT+A |
 | Keywords `I` | LT+D-pad Up |
 | Enchantments/stats `K` | LT+D-pad Down |
-| Tavern tier/Bartender `T` | LT+Y |
+| Read your minions `B` | LT+Y |
+| Tavern tier/Bartender `T` | LT+D-pad Right |
 | Upgrade tavern `U` | LT+hold Menu/Start |
 | Upgrade tavern without confirmation `Shift+U` | Hold Menu/Start |
 | Freeze/unfreeze `F` | LT+LB |
@@ -183,7 +185,7 @@ Commands from the site's Battlegrounds list are covered as follows:
 | Refresh tavern without confirmation `Shift+R` | RB |
 | Your hero power `P` | LT+B |
 | Opponent hero power `Shift+P` | RT+A |
-| Buddy meter / Hero Buddy `D` | LT+D-pad Right |
+| Buddy meter / Hero Buddy `D` | LT+right stick Right
 | Buy/sell minion `Enter` | A |
 | Select minion to reorder `Space` | LT+X |
 | Reorder selected minion `Left/Right/Home/End` | D-pad/left stick, right stick left/right in base layer |

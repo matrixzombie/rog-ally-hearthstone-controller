@@ -94,6 +94,7 @@ KEmotes := "{Space}"
 ; Battlegrounds shortcuts
 KBgGold := "a"
 KBgMinionsForSale := "g"
+KBgMyMinions := "b"
 KBgHand := "c"
 KBgTavernTier := "t"
 KBgUpgradeTavern := "u"
@@ -427,7 +428,7 @@ PollController(*) {
     global KMySecrets, KOppSecrets, KMyDeckCount, KOppDeckCount, KKeywords, KEnchantments
     global KTradeForge, KPlayHistory, KAnomalies, KRelatedCard, KOriginalCard
     global KCurrentMinionAttackHero, KAllMinionsAttackHero, KEmotes
-    global KBgGold, KBgMinionsForSale, KBgHand, KBgTavernTier, KBgUpgradeTavern
+    global KBgGold, KBgMinionsForSale, KBgMyMinions, KBgHand, KBgTavernTier, KBgUpgradeTavern
     global KBgUpgradeTavernFast, KBgFreeze, KBgFreezeFast, KBgRefresh, KBgRefreshFast
     global KBgHeroPower, KBgOppHeroPower, KBgBuddy
     global KBgMyLeaderboard, KBgMyLeaderboardQuick, KBgNextOpponentStats
@@ -521,11 +522,11 @@ PollController(*) {
                 HandleTap("bg_lt_dpad_up", povUp, KKeywords)
                 HandleTap("bg_lt_dpad_down", povDown, KEnchantments)
                 HandleTap("bg_lt_dpad_left", povLeft, KBgSecretsQuests)
-                HandleTap("bg_lt_dpad_right", povRight, KBgBuddy)
+                HandleTap("bg_lt_dpad_right", povRight, KBgTavernTier)
                 HandleTap("bg_lt_rs_up", rightStickUp, KBgQuestReward)
                 HandleTap("bg_lt_rs_down", rightStickDown, KAnomalies)
                 HandleTap("bg_lt_rs_left", rightStickLeft, KBgTrinkets)
-                HandleTap("bg_lt_rs_right", rightStickRight, "")
+                HandleTap("bg_lt_rs_right", rightStickRight, KBgBuddy)
             } else {
                 HandleTap("bg_rt_dpad_up", povUp, KBgMyLeaderboardQuick)
                 HandleTap("bg_rt_dpad_down", povDown, "")
@@ -567,7 +568,7 @@ PollController(*) {
 
         if (PressedEdge("Y", yBtn)) {
             if (layer = "self")
-                SendKey(KBgTavernTier)
+                SendKey(KBgMyMinions)
             else if (layer = "opponent")
                 SendKey(KBgNextOpponentStats)
             else
