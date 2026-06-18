@@ -24,6 +24,7 @@ global TriggerHigh := 65           ; JoyZ above this = RT held
 global RepeatInitialMs := 280
 global RepeatEveryMs := 95
 global EndTurnHoldMs := 450        ; hold Menu/Start this long to send End Turn
+global ExitHoldMs := 2000          ; hold View+Menu/Start this long to exit the mapper
 
 ; Controller support:
 ; - Xbox controllers and the ROG Ally's Gamepad Mode both expose an Xbox/XInput-like layout.
@@ -127,6 +128,7 @@ KHelp := "{F1}"
 global ButtonStates := Map()
 global RepeatStates := Map()
 global HoldStates := Map()
+global ExitComboState := {held:false, start:0, warned:false}
 
 SetTimer(PollController, PollMs)
 TrayTip("ROG Ally Hearthstone mapper", "Loaded. Gamepad Mode + Hearthstone active window required.", 3)
@@ -138,8 +140,11 @@ IsHearthstoneActive() {
 }
 
 ResetStates() {
-    global ButtonStates, RepeatStates, HoldStates
+    global ButtonStates, RepeatStates, HoldStates, ExitComboState
     ButtonStates := Map()
+    ExitComboState.held := false
+    ExitComboState.start := 0
+    ExitComboState.warned := false
     for , st in RepeatStates {
         st.held := false
         st.start := 0
@@ -240,6 +245,33 @@ HandleTapOrHold(id, pressed, tapText, holdText, holdMs) {
         st.tapText := ""
         st.holdText := ""
     }
+}
+
+HandleExitCombo(pressed) {
+    global ExitComboState, ExitHoldMs
+    now := A_TickCount
+
+    if (pressed) {
+        if (!ExitComboState.held) {
+            ExitComboState.held := true
+            ExitComboState.start := now
+            ExitComboState.warned := false
+        } else if (!ExitComboState.warned && (now - ExitComboState.start) >= 900) {
+            TrayTip("ROG Ally Hearthstone mapper", "Keep holding View+Menu to exit...", 1)
+            SoundBeep(700, 45)
+            ExitComboState.warned := true
+        } else if ((now - ExitComboState.start) >= ExitHoldMs) {
+            TrayTip("ROG Ally Hearthstone mapper", "Exiting mapper", 1)
+            SoundBeep(500, 80)
+            ExitApp()
+        }
+        return true
+    }
+
+    ExitComboState.held := false
+    ExitComboState.start := 0
+    ExitComboState.warned := false
+    return false
 }
 
 JoyName(controllerNumber, controlName) {
@@ -480,6 +512,11 @@ PollController(*) {
     lt := controller.lt
     rt := controller.rt
     layer := lt ? "self" : rt ? "opponent" : "base"
+
+    ; Exit shortcut for current/future builds. While this combo is held, block the
+    ; normal View/Menu actions so it does not toggle modes or send End Turn/upgrade.
+    if (HandleExitCombo(viewBtn && menuBtn))
+        return
 
     ; Navigation: Windows/Xbox conventions map both D-pad and left stick to focus
     ; movement. Keeping both lets the player choose precision or relaxed thumb use.

@@ -26,6 +26,19 @@ The script starts in **Standard/Arena mode**.
 
 A tray notification and beep confirm the mode change.
 
+## Exiting the mapper
+
+For the current source and future builds, hold **View + Menu/Start** together for about 2 seconds to exit the mapper.
+
+For the 1.0 `setup.exe` and `standalone.zip` executable downloads, exit from the Windows system tray:
+
+1. Open the system tray / hidden icons area near the clock.
+2. Find the ROG Ally Hearthstone Controller Mapper / AutoHotkey-style tray icon.
+3. Right-click it.
+4. Choose **Exit**.
+
+The mapper runs in the background, so closing Hearthstone does not automatically close it.
+
 ## Xbox controller support
 
 Yes, this should work with a connected Xbox controller too. The ROG Ally in Gamepad Mode and Xbox controllers both expose the standard XInput-style layout to Windows:
