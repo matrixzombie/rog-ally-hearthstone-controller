@@ -45,11 +45,13 @@ Right-click the mapper icon in the Windows system tray for:
 
 - **Standard/Arena mode**
 - **Battlegrounds mode**
+- **Pause mapper** / resume mapper
+- **Reload settings**
 - **Open settings**
 - **Open README**
 - **Exit**
 
-The active mode is checked in the tray menu.
+The active mode is checked in the tray menu. Use **Reload settings** after editing `settings.ini` if you do not want to restart the mapper.
 
 ## Settings file
 
@@ -59,19 +61,22 @@ Settings are stored here:
 %APPDATA%\RogAllyHearthstoneController\settings.ini
 ```
 
-Use the tray menu's **Open settings** item to edit it in Notepad. Restart the mapper after changing settings manually.
+Use the tray menu's **Open settings** item to edit it in Notepad. Use **Reload settings** afterward or restart the mapper.
 
 Useful settings include:
 
 ```ini
 [General]
-CurrentMode=standard          ; standard or battlegrounds
-InputBackend=auto            ; auto, xinput, or joy
+CurrentMode=standard                  ; standard or battlegrounds
+InputBackend=auto                     ; auto, xinput, or joy
 ControllerNumbers=1,2,3,4
 EndTurnHoldMs=450
 ExitHoldMs=2000
 SpeakOnLaunch=true
 SpeakModeChanges=true
+EnableExitCombo=true                  ; View+Menu/Start hold exits the mapper
+EnableHearthstoneWindowCheck=true     ; false allows mapping outside Hearthstone
+HearthstoneExe=ahk_exe Hearthstone.exe
 
 [Advanced]
 EnableStickClickInfo=false
@@ -79,6 +84,23 @@ EnableAttackFaceShortcuts=false
 ```
 
 Mode changes made through the controller shortcut or tray menu are saved, so the mapper starts in the last selected mode next time.
+
+### Attack-face shortcuts
+
+The attack-face shortcuts are configurable from `settings.ini`:
+
+```ini
+[Advanced]
+EnableStickClickInfo=true
+EnableAttackFaceShortcuts=true
+```
+
+When both are enabled:
+
+- **RT+L3** = currently selected minion attacks opponent hero.
+- **RT+R3** = all minions attack opponent hero.
+
+They are off by default because they can make attacks you did not intend.
 
 ## Xbox controller support
 
@@ -291,19 +313,12 @@ Commands from the site's Battlegrounds list are covered as follows:
 
 Number-row shortcuts for jumping directly to positions are not individually mapped because there are ten of them and they do not fit cleanly on a comfortable controller layout. Home/End remain on base right stick left/right for quest and list navigation; Shift+Tab/Tab valid-play cycling is on RT+right stick left/right.
 
-## Safety options in the script
+## Safety/configuration notes
 
-Near the top of `RogAlly_Hearthstone_Controller.ahk`:
-
-```ahk
-EnableStickClickInfo := false
-EnableAttackFaceShortcuts := false
-```
-
-- Set `EnableStickClickInfo := true` only if you want optional stick-click info shortcuts.
-- `EnableAttackFaceShortcuts` is off by default because Shift+F/Ctrl+F can make attacks you did not intend. If enabled:
-  - RT+L3 = currently selected minion attacks opponent hero
-  - RT+R3 = all minions attack opponent hero
+- Stick-click shortcuts are disabled by default because they are easy to press accidentally on handhelds.
+- Attack-face shortcuts are disabled by default because Shift+F/Ctrl+F can make attacks you did not intend.
+- `EnableHearthstoneWindowCheck=true` keeps the mapper from sending keys outside Hearthstone. Only set it to false for troubleshooting.
+- `EnableExitCombo=true` enables the View+Menu/Start exit shortcut.
 
 ## Why D-pad and stick both navigate
 

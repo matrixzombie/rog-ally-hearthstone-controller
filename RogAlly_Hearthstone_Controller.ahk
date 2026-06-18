@@ -46,6 +46,9 @@ global ConfigDir := A_AppData "\RogAllyHearthstoneController"
 global ConfigFile := ConfigDir "\settings.ini"
 global SpeakOnLaunch := true
 global SpeakModeChanges := true
+global EnableExitCombo := true
+global EnableHearthstoneWindowCheck := true
+global MapperEnabled := true
 
 ; Stick-clicks are awkward on handhelds and can happen accidentally while steering.
 ; They are therefore only duplicate/safe info by default, and can be disabled.
@@ -146,7 +149,9 @@ if (SpeakOnLaunch)
 return
 
 IsHearthstoneActive() {
-    global HearthstoneExe
+    global HearthstoneExe, EnableHearthstoneWindowCheck
+    if (!EnableHearthstoneWindowCheck)
+        return true
     return WinActive(HearthstoneExe) || WinActive("Hearthstone")
 }
 
@@ -195,8 +200,9 @@ ControllerNumbersToString() {
 }
 
 WriteDefaultSettings() {
-    global ConfigFile, CurrentMode, InputBackend, ControllerNumbers
+    global ConfigFile, HearthstoneExe, CurrentMode, InputBackend, ControllerNumbers
     global EndTurnHoldMs, ExitHoldMs, SpeakOnLaunch, SpeakModeChanges
+    global EnableExitCombo, EnableHearthstoneWindowCheck
     global EnableStickClickInfo, EnableAttackFaceShortcuts
 
     IniWrite(CurrentMode, ConfigFile, "General", "CurrentMode")
@@ -206,13 +212,17 @@ WriteDefaultSettings() {
     IniWrite(ExitHoldMs, ConfigFile, "General", "ExitHoldMs")
     IniWrite(BoolToString(SpeakOnLaunch), ConfigFile, "General", "SpeakOnLaunch")
     IniWrite(BoolToString(SpeakModeChanges), ConfigFile, "General", "SpeakModeChanges")
+    IniWrite(BoolToString(EnableExitCombo), ConfigFile, "General", "EnableExitCombo")
+    IniWrite(BoolToString(EnableHearthstoneWindowCheck), ConfigFile, "General", "EnableHearthstoneWindowCheck")
+    IniWrite(HearthstoneExe, ConfigFile, "General", "HearthstoneExe")
     IniWrite(BoolToString(EnableStickClickInfo), ConfigFile, "Advanced", "EnableStickClickInfo")
     IniWrite(BoolToString(EnableAttackFaceShortcuts), ConfigFile, "Advanced", "EnableAttackFaceShortcuts")
 }
 
 LoadSettings() {
-    global ConfigDir, ConfigFile, CurrentMode, InputBackend, ControllerNumbers
+    global ConfigDir, ConfigFile, HearthstoneExe, CurrentMode, InputBackend, ControllerNumbers
     global EndTurnHoldMs, ExitHoldMs, SpeakOnLaunch, SpeakModeChanges
+    global EnableExitCombo, EnableHearthstoneWindowCheck
     global EnableStickClickInfo, EnableAttackFaceShortcuts
 
     DirCreate(ConfigDir)
@@ -230,6 +240,9 @@ LoadSettings() {
     ExitHoldMs := ReadIniInt("General", "ExitHoldMs", ExitHoldMs, 500, 10000)
     SpeakOnLaunch := ReadIniBool("General", "SpeakOnLaunch", SpeakOnLaunch)
     SpeakModeChanges := ReadIniBool("General", "SpeakModeChanges", SpeakModeChanges)
+    EnableExitCombo := ReadIniBool("General", "EnableExitCombo", EnableExitCombo)
+    EnableHearthstoneWindowCheck := ReadIniBool("General", "EnableHearthstoneWindowCheck", EnableHearthstoneWindowCheck)
+    HearthstoneExe := Trim(IniRead(ConfigFile, "General", "HearthstoneExe", HearthstoneExe))
     EnableStickClickInfo := ReadIniBool("Advanced", "EnableStickClickInfo", EnableStickClickInfo)
     EnableAttackFaceShortcuts := ReadIniBool("Advanced", "EnableAttackFaceShortcuts", EnableAttackFaceShortcuts)
 }
@@ -247,11 +260,14 @@ SetupTrayMenu() {
     A_TrayMenu.Add("Standard/Arena mode", TrayStandardMode)
     A_TrayMenu.Add("Battlegrounds mode", TrayBattlegroundsMode)
     A_TrayMenu.Add()
+    A_TrayMenu.Add("Pause mapper", TrayTogglePause)
+    A_TrayMenu.Add("Reload settings", TrayReloadSettings)
     A_TrayMenu.Add("Open settings", TrayOpenSettings)
     A_TrayMenu.Add("Open README", TrayOpenReadme)
     A_TrayMenu.Add()
     A_TrayMenu.Add("Exit", TrayExit)
     UpdateTrayModeChecks()
+    UpdateTrayPauseCheck()
 }
 
 UpdateTrayModeChecks() {
@@ -263,12 +279,40 @@ UpdateTrayModeChecks() {
     }
 }
 
+UpdateTrayPauseCheck() {
+    global MapperEnabled
+    try {
+        if (MapperEnabled)
+            A_TrayMenu.Uncheck("Pause mapper")
+        else
+            A_TrayMenu.Check("Pause mapper")
+    }
+}
+
 TrayStandardMode(*) {
     SetMode("standard", true, true)
 }
 
 TrayBattlegroundsMode(*) {
     SetMode("battlegrounds", true, true)
+}
+
+TrayTogglePause(*) {
+    global MapperEnabled
+    MapperEnabled := !MapperEnabled
+    ResetStates()
+    UpdateTrayPauseCheck()
+    TrayTip("ROG Ally Hearthstone mapper", MapperEnabled ? "Mapper resumed" : "Mapper paused", 2)
+    Speak(MapperEnabled ? "Mapper resumed" : "Mapper paused")
+}
+
+TrayReloadSettings(*) {
+    LoadSettings()
+    ResetStates()
+    UpdateTrayModeChecks()
+    UpdateTrayPauseCheck()
+    TrayTip("ROG Ally Hearthstone mapper", "Settings reloaded", 2)
+    Speak("Settings reloaded. " ModeDisplayName(CurrentMode) " mode")
 }
 
 TrayOpenSettings(*) {
@@ -629,7 +673,7 @@ ReadControllerState() {
 
 PollController(*) {
     global AxisDeadzone, RightStickDeadzone, TriggerLow, TriggerHigh, EndTurnHoldMs
-    global CurrentMode, EnableStickClickInfo, EnableAttackFaceShortcuts
+    global CurrentMode, MapperEnabled, EnableExitCombo, EnableStickClickInfo, EnableAttackFaceShortcuts
     global KPrevItem, KNextItem, KPrevLine, KNextLine, KFirstItem, KLastItem
     global KRepeatCurrentLine, KReadRestOfItem, KNextValidPlay, KPrevValidPlay
     global KSelect, KCancel, KEndTurn, KHelp
@@ -646,7 +690,7 @@ PollController(*) {
     global KBgSecretsQuests, KBgOppSecretsQuests, KBgQuestReward, KBgOppQuestReward
     global KBgTrinkets, KBgOppTrinkets, KBgReorder
 
-    if (!IsHearthstoneActive()) {
+    if (!MapperEnabled || !IsHearthstoneActive()) {
         ResetStates()
         return
     }
@@ -693,7 +737,7 @@ PollController(*) {
 
     ; Exit shortcut for current/future builds. While this combo is held, block the
     ; normal View/Menu actions so it does not toggle modes or send End Turn/upgrade.
-    if (HandleExitCombo(viewBtn && menuBtn))
+    if (EnableExitCombo && HandleExitCombo(viewBtn && menuBtn))
         return
 
     ; Navigation: Windows/Xbox conventions map both D-pad and left stick to focus
