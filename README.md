@@ -263,26 +263,51 @@ That duplication is intentional and matches common gamepad UI behavior: D-pad gi
 
 ## Confirming controller axes/buttons
 
-If triggers or the right stick do not work, run `Controller_Diagnostic.ahk` on the Windows device.
+If no controller input works, triggers do not switch layers, or the right stick does not work, run `Controller_Diagnostic.ahk` on the Windows device.
 
 1. Install AutoHotkey v2.
 2. Run `Controller_Diagnostic.ahk`.
 3. Press/move one control at a time.
-4. Expected results for ROG Ally Gamepad Mode or an Xbox controller:
-   - LT/RT should change `JoyZ`: LT goes below 50, RT goes above 50.
-   - Right stick left/right should change `JoyU`.
-   - Right stick up/down should change `JoyR`.
-   - A/B/X/Y should show buttons 1/2/3/4.
-   - LB/RB should show buttons 5/6.
-   - View/Menu should show buttons 7/8.
+4. Check the **XInput controllers 1-4** section first. ROG Ally, ROG Ally X, and Xbox controllers should normally appear there.
 
-If the diagnostic shows a different controller number changing, you can either leave `ControllerNumbers := [1, 2, 3, 4]` or set it to that specific number. If a different axis changes for triggers or right stick, edit these lines in `RogAlly_Hearthstone_Controller.ahk`:
+Expected XInput results:
+
+- A/B/X/Y should show as A/B/X/Y.
+- LB/RB should show as LB/RB.
+- View/Menu should show as View/Back and Menu/Start.
+- LT/RT should change the LT/RT values from 0 upward.
+- Left stick and right stick should change their own X/Y values.
+
+The main script now defaults to:
 
 ```ahk
-rx := JoyAxis("U") ; right stick horizontal
-ry := JoyAxis("R") ; right stick vertical
-z := JoyAxis("Z")  ; LT/RT trigger axis
+InputBackend := "auto"
 ```
+
+That means it prefers XInput, then falls back to AutoHotkey's legacy Joy API. If XInput works in the diagnostic but the mapper still does not, try forcing XInput:
+
+```ahk
+InputBackend := "xinput"
+```
+
+If XInput does not show anything but the Joy API section does, try forcing the legacy Joy API:
+
+```ahk
+InputBackend := "joy"
+```
+
+If the Joy API shows a different controller number changing, you can either leave `ControllerNumbers := [1, 2, 3, 4]` or set it to that specific number.
+
+## Troubleshooting: no keys happen in Hearthstone
+
+Check these in order:
+
+1. Run `Controller_Diagnostic.ahk`. If it sees XInput input, update to the latest mapper and try `InputBackend := "xinput"` if needed.
+2. Make sure the mapper is running with AutoHotkey **v2**, not v1.
+3. Make sure Hearthstone is the active foreground window. The mapper intentionally sends nothing outside Hearthstone.
+4. If Hearthstone is running as Administrator, run the mapper as Administrator too.
+5. Make sure Armoury Crate / Command Center is set to **Gamepad Mode** and the embedded controller is enabled.
+6. On a ROG Ally X, update Armoury Crate SE and ASUS controller/firmware components if the diagnostic does not see controller input.
 
 ## Install/use
 

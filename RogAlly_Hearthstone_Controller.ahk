@@ -33,6 +33,12 @@ global EndTurnHoldMs := 450        ; hold Menu/Start this long to send End Turn
 global ControllerNumbers := [1, 2, 3, 4]
 global CurrentMode := "standard"   ; "standard" or "battlegrounds". Hold View to toggle.
 
+; Input backend:
+; - "auto" prefers XInput and falls back to AutoHotkey's legacy Joy API.
+; - "xinput" uses only XInput. This is usually best for Xbox controllers and ROG Ally/Ally X.
+; - "joy" uses only AutoHotkey's legacy Joy API.
+global InputBackend := "auto"
+
 ; Stick-clicks are awkward on handhelds and can happen accidentally while steering.
 ; They are therefore only duplicate/safe info by default, and can be disabled.
 global EnableStickClickInfo := false
@@ -285,6 +291,131 @@ JoyPOVAny() {
     return -1
 }
 
+Clamp(value, low, high) {
+    return value < low ? low : value > high ? high : value
+}
+
+XInputGetState(userIndex, state) {
+    ; Returns 0 on success. Try the common XInput DLLs used across Windows versions.
+    static dlls := ["xinput1_4", "xinput1_3", "xinput9_1_0"]
+    for , dll in dlls {
+        try return DllCall(dll "\XInputGetState", "UInt", userIndex, "Ptr", state.Ptr, "UInt")
+        catch
+            continue
+    }
+    return 1167 ; ERROR_DEVICE_NOT_CONNECTED / unavailable fallback
+}
+
+ReadXInputControllerState() {
+    global ControllerNumbers
+    result := {
+        connected:false,
+        a:false, b:false, x:false, y:false,
+        lb:false, rb:false, view:false, menu:false, l3:false, r3:false,
+        povUp:false, povRight:false, povDown:false, povLeft:false,
+        lx:50, ly:50, rx:50, ry:50,
+        lt:false, rt:false
+    }
+
+    bestLXDelta := -1, bestLYDelta := -1, bestRXDelta := -1, bestRYDelta := -1
+    maxLT := 0, maxRT := 0
+
+    for , controllerNumber in ControllerNumbers {
+        userIndex := controllerNumber - 1 ; XInput uses 0-3, while Joy uses 1-4.
+        if (userIndex < 0 || userIndex > 3)
+            continue
+
+        state := Buffer(16, 0)
+        if (XInputGetState(userIndex, state) != 0)
+            continue
+
+        result.connected := true
+        buttons := NumGet(state, 4, "UShort")
+        ltValue := NumGet(state, 6, "UChar")
+        rtValue := NumGet(state, 7, "UChar")
+        lxRaw := NumGet(state, 8, "Short")
+        lyRaw := NumGet(state, 10, "Short")
+        rxRaw := NumGet(state, 12, "Short")
+        ryRaw := NumGet(state, 14, "Short")
+
+        result.povUp := result.povUp || !!(buttons & 0x0001)
+        result.povDown := result.povDown || !!(buttons & 0x0002)
+        result.povLeft := result.povLeft || !!(buttons & 0x0004)
+        result.povRight := result.povRight || !!(buttons & 0x0008)
+        result.menu := result.menu || !!(buttons & 0x0010) ; Start/Menu
+        result.view := result.view || !!(buttons & 0x0020) ; Back/View
+        result.l3 := result.l3 || !!(buttons & 0x0040)
+        result.r3 := result.r3 || !!(buttons & 0x0080)
+        result.lb := result.lb || !!(buttons & 0x0100)
+        result.rb := result.rb || !!(buttons & 0x0200)
+        result.a := result.a || !!(buttons & 0x1000)
+        result.b := result.b || !!(buttons & 0x2000)
+        result.x := result.x || !!(buttons & 0x4000)
+        result.y := result.y || !!(buttons & 0x8000)
+
+        if (ltValue > maxLT)
+            maxLT := ltValue
+        if (rtValue > maxRT)
+            maxRT := rtValue
+
+        lxNorm := Clamp(50 + (lxRaw * 50 / 32767), 0, 100)
+        lyNorm := Clamp(50 - (lyRaw * 50 / 32767), 0, 100) ; XInput Y up is positive; Joy Y up is low.
+        rxNorm := Clamp(50 + (rxRaw * 50 / 32767), 0, 100)
+        ryNorm := Clamp(50 - (ryRaw * 50 / 32767), 0, 100)
+
+        if (Abs(lxNorm - 50) > bestLXDelta) {
+            result.lx := lxNorm
+            bestLXDelta := Abs(lxNorm - 50)
+        }
+        if (Abs(lyNorm - 50) > bestLYDelta) {
+            result.ly := lyNorm
+            bestLYDelta := Abs(lyNorm - 50)
+        }
+        if (Abs(rxNorm - 50) > bestRXDelta) {
+            result.rx := rxNorm
+            bestRXDelta := Abs(rxNorm - 50)
+        }
+        if (Abs(ryNorm - 50) > bestRYDelta) {
+            result.ry := ryNorm
+            bestRYDelta := Abs(ryNorm - 50)
+        }
+    }
+
+    ; A small trigger threshold avoids accidental layer changes from trigger noise.
+    result.lt := (maxLT > 30)
+    result.rt := (maxRT > 30)
+    return result
+}
+
+ReadJoyControllerState() {
+    global TriggerLow, TriggerHigh
+    pov := JoyPOVAny()
+    z := JoyAxis("Z")
+    return {
+        connected:true,
+        a:JoyButton(1), b:JoyButton(2), x:JoyButton(3), y:JoyButton(4),
+        lb:JoyButton(5), rb:JoyButton(6), view:JoyButton(7), menu:JoyButton(8),
+        l3:JoyButton(9), r3:JoyButton(10),
+        povUp:(pov = 0 || pov = 4500 || pov = 31500),
+        povRight:(pov = 9000 || pov = 4500 || pov = 13500),
+        povDown:(pov = 18000 || pov = 13500 || pov = 22500),
+        povLeft:(pov = 27000 || pov = 22500 || pov = 31500),
+        lx:JoyAxis("X"), ly:JoyAxis("Y"),
+        rx:JoyAxis("U"), ry:JoyAxis("R"),
+        lt:(z < TriggerLow), rt:(z > TriggerHigh)
+    }
+}
+
+ReadControllerState() {
+    global InputBackend
+    if (InputBackend != "joy") {
+        state := ReadXInputControllerState()
+        if (state.connected || InputBackend = "xinput")
+            return state
+    }
+    return ReadJoyControllerState()
+}
+
 PollController(*) {
     global AxisDeadzone, RightStickDeadzone, TriggerLow, TriggerHigh, EndTurnHoldMs
     global CurrentMode, EnableStickClickInfo, EnableAttackFaceShortcuts
@@ -309,48 +440,44 @@ PollController(*) {
         return
     }
 
-    ; Xbox/ROG Ally buttons exposed through Windows joystick API:
-    ; Joy1=A, Joy2=B, Joy3=X, Joy4=Y, Joy5=LB, Joy6=RB,
-    ; Joy7=View, Joy8=Menu/Start, Joy9=L3, Joy10=R3.
-    a := JoyButton(1)
-    b := JoyButton(2)
-    xBtn := JoyButton(3)
-    yBtn := JoyButton(4)
-    lb := JoyButton(5)
-    rb := JoyButton(6)
-    viewBtn := JoyButton(7)
-    menuBtn := JoyButton(8)
-    l3 := JoyButton(9)
-    r3 := JoyButton(10)
+    controller := ReadControllerState()
 
-    pov := JoyPOVAny()
-    povUp := (pov = 0 || pov = 4500 || pov = 31500)
-    povRight := (pov = 9000 || pov = 4500 || pov = 13500)
-    povDown := (pov = 18000 || pov = 13500 || pov = 22500)
-    povLeft := (pov = 27000 || pov = 22500 || pov = 31500)
+    ; Xbox/ROG Ally logical layout:
+    ; A/B/X/Y, LB/RB, View/Menu, L3/R3, D-pad, sticks, LT/RT.
+    ; In auto mode the script prefers XInput, which is more reliable on the
+    ; ROG Ally X and Xbox controllers, then falls back to AHK's Joy API.
+    a := controller.a
+    b := controller.b
+    xBtn := controller.x
+    yBtn := controller.y
+    lb := controller.lb
+    rb := controller.rb
+    viewBtn := controller.view
+    menuBtn := controller.menu
+    l3 := controller.l3
+    r3 := controller.r3
 
-    lx := JoyAxis("X")
-    ly := JoyAxis("Y")
+    povUp := controller.povUp
+    povRight := controller.povRight
+    povDown := controller.povDown
+    povLeft := controller.povLeft
+
+    lx := controller.lx
+    ly := controller.ly
     stickLeft := (lx < 50 - AxisDeadzone)
     stickRight := (lx > 50 + AxisDeadzone)
     stickUp := (ly < 50 - AxisDeadzone)
     stickDown := (ly > 50 + AxisDeadzone)
 
-    ; Right stick is read-only list utility: useful during mulligan/card reading.
-    ; On most XInput devices via AHK's legacy joystick API, JoyU = right-stick X
-    ; and JoyR = right-stick Y. If your Ally reports these differently, swap them.
-    rx := JoyAxis("U")
-    ry := JoyAxis("R")
+    rx := controller.rx
+    ry := controller.ry
     rightStickLeft := (rx < 50 - RightStickDeadzone)
     rightStickRight := (rx > 50 + RightStickDeadzone)
     rightStickUp := (ry < 50 - RightStickDeadzone)
     rightStickDown := (ry > 50 + RightStickDeadzone)
 
-    ; XInput controllers normally expose LT/RT as a shared Z axis through the
-    ; legacy joystick API: LT lowers it, RT raises it.
-    z := JoyAxis("Z")
-    lt := (z < TriggerLow)
-    rt := (z > TriggerHigh)
+    lt := controller.lt
+    rt := controller.rt
     layer := lt ? "self" : rt ? "opponent" : "base"
 
     ; Navigation: Windows/Xbox conventions map both D-pad and left stick to focus
