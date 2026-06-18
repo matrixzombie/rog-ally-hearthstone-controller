@@ -17,14 +17,14 @@ Keyboard shortcut source: https://hearthstoneaccess.com/commands.html
 
 ## Modes
 
-The script starts in **Standard/Arena mode**.
+The mapper starts in the mode saved in the settings file. The default is **Standard/Arena mode**.
 
 | Control | Action |
 |---|---|
 | Hold View for about 0.7 seconds | Toggle between Standard/Arena and Battlegrounds mode |
 | Tap View | Help for the current screen/prompt |
 
-A tray notification appears and Windows SAPI speech announces the active mode.
+On launch, Windows SAPI speech announces the active mode. Mode changes also show a tray notification and speak the new mode.
 
 ## Exiting the mapper
 
@@ -38,6 +38,47 @@ You can also exit from the Windows system tray:
 4. Choose **Exit**.
 
 The mapper runs in the background, so closing Hearthstone does not automatically close it.
+
+## Tray menu
+
+Right-click the mapper icon in the Windows system tray for:
+
+- **Standard/Arena mode**
+- **Battlegrounds mode**
+- **Open settings**
+- **Open README**
+- **Exit**
+
+The active mode is checked in the tray menu.
+
+## Settings file
+
+Settings are stored here:
+
+```text
+%APPDATA%\RogAllyHearthstoneController\settings.ini
+```
+
+Use the tray menu's **Open settings** item to edit it in Notepad. Restart the mapper after changing settings manually.
+
+Useful settings include:
+
+```ini
+[General]
+CurrentMode=standard          ; standard or battlegrounds
+InputBackend=auto            ; auto, xinput, or joy
+ControllerNumbers=1,2,3,4
+EndTurnHoldMs=450
+ExitHoldMs=2000
+SpeakOnLaunch=true
+SpeakModeChanges=true
+
+[Advanced]
+EnableStickClickInfo=false
+EnableAttackFaceShortcuts=false
+```
+
+Mode changes made through the controller shortcut or tray menu are saved, so the mapper starts in the last selected mode next time.
 
 ## Xbox controller support
 

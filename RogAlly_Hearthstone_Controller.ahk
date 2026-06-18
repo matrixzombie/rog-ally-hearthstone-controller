@@ -40,6 +40,13 @@ global CurrentMode := "standard"   ; "standard" or "battlegrounds". Hold View to
 ; - "joy" uses only AutoHotkey's legacy Joy API.
 global InputBackend := "auto"
 
+; User settings are stored in AppData so installed builds can save settings even
+; when the program itself lives under Program Files.
+global ConfigDir := A_AppData "\RogAllyHearthstoneController"
+global ConfigFile := ConfigDir "\settings.ini"
+global SpeakOnLaunch := true
+global SpeakModeChanges := true
+
 ; Stick-clicks are awkward on handhelds and can happen accidentally while steering.
 ; They are therefore only duplicate/safe info by default, and can be disabled.
 global EnableStickClickInfo := false
@@ -130,13 +137,160 @@ global RepeatStates := Map()
 global HoldStates := Map()
 global ExitComboState := {held:false, start:0, warned:false}
 
+LoadSettings()
+SetupTrayMenu()
 SetTimer(PollController, PollMs)
 TrayTip("ROG Ally Hearthstone mapper", "Loaded. Gamepad Mode + Hearthstone active window required.", 3)
+if (SpeakOnLaunch)
+    Speak("Mapper loaded. " ModeDisplayName(CurrentMode) " mode")
 return
 
 IsHearthstoneActive() {
     global HearthstoneExe
     return WinActive(HearthstoneExe) || WinActive("Hearthstone")
+}
+
+BoolToString(value) {
+    return value ? "true" : "false"
+}
+
+ReadIniBool(section, key, defaultValue) {
+    global ConfigFile
+    value := StrLower(Trim(IniRead(ConfigFile, section, key, BoolToString(defaultValue))))
+    return (value = "1" || value = "true" || value = "yes" || value = "on")
+}
+
+ReadIniInt(section, key, defaultValue, minValue := "", maxValue := "") {
+    global ConfigFile
+    value := IniRead(ConfigFile, section, key, defaultValue)
+    if (!IsNumber(value))
+        value := defaultValue
+    value := Integer(value)
+    if (minValue != "" && value < minValue)
+        value := minValue
+    if (maxValue != "" && value > maxValue)
+        value := maxValue
+    return value
+}
+
+ParseControllerNumbers(value) {
+    result := []
+    for , part in StrSplit(value, ",") {
+        part := Trim(part)
+        if (part != "" && IsNumber(part)) {
+            number := Integer(part)
+            if (number >= 1 && number <= 4)
+                result.Push(number)
+        }
+    }
+    return result.Length ? result : [1, 2, 3, 4]
+}
+
+ControllerNumbersToString() {
+    global ControllerNumbers
+    output := ""
+    for index, number in ControllerNumbers
+        output .= (index = 1 ? "" : ",") number
+    return output
+}
+
+WriteDefaultSettings() {
+    global ConfigFile, CurrentMode, InputBackend, ControllerNumbers
+    global EndTurnHoldMs, ExitHoldMs, SpeakOnLaunch, SpeakModeChanges
+    global EnableStickClickInfo, EnableAttackFaceShortcuts
+
+    IniWrite(CurrentMode, ConfigFile, "General", "CurrentMode")
+    IniWrite(InputBackend, ConfigFile, "General", "InputBackend")
+    IniWrite(ControllerNumbersToString(), ConfigFile, "General", "ControllerNumbers")
+    IniWrite(EndTurnHoldMs, ConfigFile, "General", "EndTurnHoldMs")
+    IniWrite(ExitHoldMs, ConfigFile, "General", "ExitHoldMs")
+    IniWrite(BoolToString(SpeakOnLaunch), ConfigFile, "General", "SpeakOnLaunch")
+    IniWrite(BoolToString(SpeakModeChanges), ConfigFile, "General", "SpeakModeChanges")
+    IniWrite(BoolToString(EnableStickClickInfo), ConfigFile, "Advanced", "EnableStickClickInfo")
+    IniWrite(BoolToString(EnableAttackFaceShortcuts), ConfigFile, "Advanced", "EnableAttackFaceShortcuts")
+}
+
+LoadSettings() {
+    global ConfigDir, ConfigFile, CurrentMode, InputBackend, ControllerNumbers
+    global EndTurnHoldMs, ExitHoldMs, SpeakOnLaunch, SpeakModeChanges
+    global EnableStickClickInfo, EnableAttackFaceShortcuts
+
+    DirCreate(ConfigDir)
+    if (!FileExist(ConfigFile))
+        WriteDefaultSettings()
+
+    mode := StrLower(Trim(IniRead(ConfigFile, "General", "CurrentMode", CurrentMode)))
+    CurrentMode := (mode = "battlegrounds") ? "battlegrounds" : "standard"
+
+    backend := StrLower(Trim(IniRead(ConfigFile, "General", "InputBackend", InputBackend)))
+    InputBackend := (backend = "xinput" || backend = "joy") ? backend : "auto"
+
+    ControllerNumbers := ParseControllerNumbers(IniRead(ConfigFile, "General", "ControllerNumbers", "1,2,3,4"))
+    EndTurnHoldMs := ReadIniInt("General", "EndTurnHoldMs", EndTurnHoldMs, 100, 5000)
+    ExitHoldMs := ReadIniInt("General", "ExitHoldMs", ExitHoldMs, 500, 10000)
+    SpeakOnLaunch := ReadIniBool("General", "SpeakOnLaunch", SpeakOnLaunch)
+    SpeakModeChanges := ReadIniBool("General", "SpeakModeChanges", SpeakModeChanges)
+    EnableStickClickInfo := ReadIniBool("Advanced", "EnableStickClickInfo", EnableStickClickInfo)
+    EnableAttackFaceShortcuts := ReadIniBool("Advanced", "EnableAttackFaceShortcuts", EnableAttackFaceShortcuts)
+}
+
+SaveSettings() {
+    WriteDefaultSettings()
+}
+
+ModeDisplayName(mode) {
+    return (mode = "battlegrounds") ? "Battlegrounds" : "Standard and Arena"
+}
+
+SetupTrayMenu() {
+    A_TrayMenu.Delete()
+    A_TrayMenu.Add("Standard/Arena mode", TrayStandardMode)
+    A_TrayMenu.Add("Battlegrounds mode", TrayBattlegroundsMode)
+    A_TrayMenu.Add()
+    A_TrayMenu.Add("Open settings", TrayOpenSettings)
+    A_TrayMenu.Add("Open README", TrayOpenReadme)
+    A_TrayMenu.Add()
+    A_TrayMenu.Add("Exit", TrayExit)
+    UpdateTrayModeChecks()
+}
+
+UpdateTrayModeChecks() {
+    global CurrentMode
+    try {
+        A_TrayMenu.Uncheck("Standard/Arena mode")
+        A_TrayMenu.Uncheck("Battlegrounds mode")
+        A_TrayMenu.Check((CurrentMode = "battlegrounds") ? "Battlegrounds mode" : "Standard/Arena mode")
+    }
+}
+
+TrayStandardMode(*) {
+    SetMode("standard", true, true)
+}
+
+TrayBattlegroundsMode(*) {
+    SetMode("battlegrounds", true, true)
+}
+
+TrayOpenSettings(*) {
+    global ConfigFile
+    if (!FileExist(ConfigFile))
+        WriteDefaultSettings()
+    Run("notepad.exe `"" ConfigFile "`"")
+}
+
+TrayOpenReadme(*) {
+    readmeHtml := A_ScriptDir "\readme.html"
+    readmeMd := A_ScriptDir "\README.md"
+    if (FileExist(readmeHtml))
+        Run(readmeHtml)
+    else if (FileExist(readmeMd))
+        Run(readmeMd)
+    else
+        Run("https://github.com/matrixzombie/rog-ally-hearthstone-controller#readme")
+}
+
+TrayExit(*) {
+    ExitApp()
 }
 
 ResetStates() {
@@ -186,17 +340,24 @@ Speak(text) {
     }
 }
 
+SetMode(mode, announce := true, save := true) {
+    global CurrentMode, SpeakModeChanges
+    mode := (mode = "battlegrounds") ? "battlegrounds" : "standard"
+    CurrentMode := mode
+    UpdateTrayModeChecks()
+    if (save)
+        SaveSettings()
+    if (announce) {
+        displayName := ModeDisplayName(CurrentMode)
+        TrayTip("ROG Ally Hearthstone mapper", displayName " mode", 2)
+        if (SpeakModeChanges)
+            Speak(displayName " mode")
+    }
+}
+
 ToggleMode() {
     global CurrentMode
-    if (CurrentMode = "standard") {
-        CurrentMode := "battlegrounds"
-        TrayTip("ROG Ally Hearthstone mapper", "Battlegrounds mode", 2)
-        Speak("Battlegrounds mode")
-    } else {
-        CurrentMode := "standard"
-        TrayTip("ROG Ally Hearthstone mapper", "Standard and Arena mode", 2)
-        Speak("Standard and Arena mode")
-    }
+    SetMode((CurrentMode = "standard") ? "battlegrounds" : "standard", true, true)
 }
 
 PressedEdge(id, pressed) {
