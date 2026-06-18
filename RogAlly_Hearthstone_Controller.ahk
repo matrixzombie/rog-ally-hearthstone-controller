@@ -168,7 +168,7 @@ SendKey(sendText) {
 
 Speak(text) {
     ; Use Windows SAPI for important mapper status announcements.
-    ; Flag 1 = async, so controller polling is not blocked by speech.
+    ; Flag 3 = async + purge queued speech, so the current mode is spoken immediately.
     static initialized := false
     static voice := ""
 
@@ -182,7 +182,7 @@ Speak(text) {
     }
 
     if (IsObject(voice)) {
-        try voice.Speak(text, 1)
+        try voice.Speak(text, 3)
     }
 }
 
