@@ -15,16 +15,6 @@ Keyboard shortcut source: https://hearthstoneaccess.com/commands.html
 - [AutoHotkey v2](https://www.autohotkey.com/)
 - Hearthstone with the accessibility mod installed
 
-## Research-based design choices
-
-I polished the layout using these controller/accessibility principles:
-
-- Windows/Xbox gamepad UI conventions map **D-pad/left stick to arrows/focus**, **A to select**, and **B to back**.
-- Xbox accessibility guidance recommends avoiding mandatory rapid inputs, long holds, and complex simultaneous button sequences. This script uses simple taps for most actions and only short deliberate holds for mode toggle and dangerous actions like End Turn or tavern upgrade.
-- Game Accessibility Guidelines recommend remappable/configurable controls and allowing the same input method everywhere. The script keeps everything on the controller while leaving key values editable near the top.
-- Stick-clicks are comparatively awkward and easy to press accidentally on handhelds, so they are disabled by default.
-- Frequent actions should be on easy controls: A/B/X/Y, D-pad/stick, and bumpers. Less frequent info is on LT/RT layers.
-
 ## Modes
 
 The script starts in **Standard/Arena mode**.
@@ -62,7 +52,7 @@ ControllerNumbers := [1] ; only the first controller
 ControllerNumbers := [2] ; only the second controller
 ```
 
-## Standard/Arena base battle layout
+### Standard/Arena base battle layout
 
 | ROG Ally control | Sent key | Action |
 |---|---:|---|
@@ -81,7 +71,47 @@ ControllerNumbers := [2] ; only the second controller
 | Hold Menu/Start | E | End turn |
 | L3/R3 | Disabled by default | Optional duplicate info if enabled in the script |
 
-## Mulligan phase
+### Standard/Arena LT: your info/action layer
+
+Hold **LT** and press:
+
+| Control | Sent key | Action |
+|---|---:|---|
+| A | A | Your mana/corpses |
+| X | C | Your hand |
+| Y | B | Your minions |
+| B | V | Your hero |
+| LB | R | Your hero power |
+| RB | W | Your weapon |
+| D-pad Left | S | Your secrets |
+| D-pad Right | D | Your deck count |
+| D-pad Up | I | Focused card keywords |
+| D-pad Down | K | Focused minion attack/health/enchantments |
+| Tap Menu/Start | T | Trade or forge focused card if possible |
+| Tap View | O | Anomalies affecting current game |
+| Hold View | Script mode toggle | Switch Standard/Arena ↔ Battlegrounds |
+
+### Standard/Arena RT: opponent / shifted layer
+
+Hold **RT** and press:
+
+| Control | Sent key | Action |
+|---|---:|---|
+| A | Shift+A | Opponent mana/corpses |
+| X | Shift+C | Count opponent's hand |
+| Y | G | Opponent minions |
+| B | F | Opponent hero |
+| LB | Shift+R | Opponent hero power |
+| RB | Shift+W | Opponent weapon |
+| D-pad Left | Shift+S | Opponent secrets |
+| D-pad Right | Shift+D | Opponent deck count |
+| D-pad Up | PageUp | Original card lines |
+| D-pad Down | PageDown | Related card lines |
+| Tap Menu/Start | Space | Emotes/squelch when focused on a hero |
+| Tap View | O | Anomalies affecting current game |
+| Hold View | Script mode toggle | Switch Standard/Arena ↔ Battlegrounds |
+
+### Mulligan phase
 
 The accessibility mod does not list separate mulligan-only commands; the mulligan uses the normal horizontal-list/menu commands. The script covers those:
 
@@ -96,7 +126,7 @@ The accessibility mod does not list separate mulligan-only commands; the mulliga
 | Go back/cancel if the mod allows it | B |
 | Help for the current prompt | View |
 
-So there is no separate mulligan mode to toggle; use **X for Space** on cards, then **A for Enter** to finish.
+Use **X for Space** on cards, then **A for Enter** to finish.
 
 ## Battlegrounds mode
 
@@ -206,46 +236,6 @@ Commands from the site's Battlegrounds list are covered as follows:
 | Opponent trinkets `Shift+Q` | RT+LB |
 
 Number-row shortcuts for jumping directly to positions are not individually mapped because there are ten of them and they do not fit cleanly on a comfortable controller layout. Home/End remain on base right stick left/right for quest and list navigation; Shift+Tab/Tab valid-play cycling is on RT+right stick left/right.
-
-## Standard/Arena LT: your info/action layer
-
-Hold **LT** and press:
-
-| Control | Sent key | Action |
-|---|---:|---|
-| A | A | Your mana/corpses |
-| X | C | Your hand |
-| Y | B | Your minions |
-| B | V | Your hero |
-| LB | R | Your hero power |
-| RB | W | Your weapon |
-| D-pad Left | S | Your secrets |
-| D-pad Right | D | Your deck count |
-| D-pad Up | I | Focused card keywords |
-| D-pad Down | K | Focused minion attack/health/enchantments |
-| Tap Menu/Start | T | Trade or forge focused card if possible |
-| Tap View | O | Anomalies affecting current game |
-| Hold View | Script mode toggle | Switch Standard/Arena ↔ Battlegrounds |
-
-## Standard/Arena RT: opponent / shifted layer
-
-Hold **RT** and press:
-
-| Control | Sent key | Action |
-|---|---:|---|
-| A | Shift+A | Opponent mana/corpses |
-| X | Shift+C | Count opponent's hand |
-| Y | G | Opponent minions |
-| B | F | Opponent hero |
-| LB | Shift+R | Opponent hero power |
-| RB | Shift+W | Opponent weapon |
-| D-pad Left | Shift+S | Opponent secrets |
-| D-pad Right | Shift+D | Opponent deck count |
-| D-pad Up | PageUp | Original card lines |
-| D-pad Down | PageDown | Related card lines |
-| Tap Menu/Start | Space | Emotes/squelch when focused on a hero |
-| Tap View | O | Anomalies affecting current game |
-| Hold View | Script mode toggle | Switch Standard/Arena ↔ Battlegrounds |
 
 ## Safety options in the script
 
