@@ -63,19 +63,36 @@ Settings are stored here:
 
 Use the tray menu's **Open settings** item to edit it in Notepad. Use **Reload settings** afterward or restart the mapper.
 
-Useful settings include:
+The generated settings file includes comments explaining each option. Summary:
+
+| Setting | Values | What it does |
+|---|---|---|
+| `CurrentMode` | `standard`, `battlegrounds` | Starting/current layout mode. Mode changes are saved automatically. |
+| `InputBackend` | `auto`, `xinput`, `joy` | Controller input method. `auto` is recommended; `xinput` is often best for Ally X/Xbox. |
+| `ControllerNumbers` | e.g. `1,2,3,4` | Which controller slots to poll. Narrow this if duplicate/unwanted input occurs. |
+| `EndTurnHoldMs` | milliseconds | Hold time for Standard/Arena End Turn on Menu/Start. |
+| `ExitHoldMs` | milliseconds | Hold time for View+Menu/Start to exit the mapper. |
+| `SpeakOnLaunch` | `true`/`false` | Speaks the active mode when the mapper starts. |
+| `SpeakModeChanges` | `true`/`false` | Speaks the new mode when switching modes. |
+| `EnableExitCombo` | `true`/`false` | Enables/disables the View+Menu/Start exit shortcut. |
+| `EnableHearthstoneWindowCheck` | `true`/`false` | Keeps mappings active only while Hearthstone is focused. Set false only for troubleshooting. |
+| `HearthstoneExe` | window matcher | Window/exe matcher used by the Hearthstone focus check. |
+| `EnableStickClickInfo` | `true`/`false` | Enables optional L3/R3 info shortcuts. Required for attack-face shortcuts. |
+| `EnableAttackFaceShortcuts` | `true`/`false` | Enables RT+L3 and RT+R3 attack-face shortcuts. Off by default for safety. |
+
+Example:
 
 ```ini
 [General]
-CurrentMode=standard                  ; standard or battlegrounds
-InputBackend=auto                     ; auto, xinput, or joy
+CurrentMode=standard
+InputBackend=auto
 ControllerNumbers=1,2,3,4
 EndTurnHoldMs=450
 ExitHoldMs=2000
 SpeakOnLaunch=true
 SpeakModeChanges=true
-EnableExitCombo=true                  ; View+Menu/Start hold exits the mapper
-EnableHearthstoneWindowCheck=true     ; false allows mapping outside Hearthstone
+EnableExitCombo=true
+EnableHearthstoneWindowCheck=true
 HearthstoneExe=ahk_exe Hearthstone.exe
 
 [Advanced]

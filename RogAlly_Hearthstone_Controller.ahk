@@ -199,11 +199,47 @@ ControllerNumbersToString() {
     return output
 }
 
-WriteDefaultSettings() {
+WriteDefaultSettings(includeComments := false) {
     global ConfigFile, HearthstoneExe, CurrentMode, InputBackend, ControllerNumbers
     global EndTurnHoldMs, ExitHoldMs, SpeakOnLaunch, SpeakModeChanges
     global EnableExitCombo, EnableHearthstoneWindowCheck
     global EnableStickClickInfo, EnableAttackFaceShortcuts
+
+    if (includeComments) {
+        settingsText := ""
+        settingsText .= "; ROG Ally Hearthstone Controller Mapper settings`r`n"
+        settingsText .= "; Edit this file, save it, then use the tray menu's Reload settings item or restart the mapper.`r`n"
+        settingsText .= "; true/false values can also be written as yes/no or on/off.`r`n`r`n"
+        settingsText .= "[General]`r`n"
+        settingsText .= "; Starting/current mode. Valid values: standard, battlegrounds.`r`n"
+        settingsText .= "CurrentMode=" CurrentMode "`r`n`r`n"
+        settingsText .= "; Controller input backend. auto is recommended. Valid values: auto, xinput, joy.`r`n"
+        settingsText .= "InputBackend=" InputBackend "`r`n`r`n"
+        settingsText .= "; Controller numbers to poll, comma-separated. Leave 1,2,3,4 unless troubleshooting duplicate/unwanted input.`r`n"
+        settingsText .= "ControllerNumbers=" ControllerNumbersToString() "`r`n`r`n"
+        settingsText .= "; Hold time in milliseconds for Standard/Arena end turn. Default 450.`r`n"
+        settingsText .= "EndTurnHoldMs=" EndTurnHoldMs "`r`n`r`n"
+        settingsText .= "; Hold time in milliseconds for View+Menu/Start exit shortcut. Default 2000.`r`n"
+        settingsText .= "ExitHoldMs=" ExitHoldMs "`r`n`r`n"
+        settingsText .= "; Speak the current mode when the mapper starts.`r`n"
+        settingsText .= "SpeakOnLaunch=" BoolToString(SpeakOnLaunch) "`r`n`r`n"
+        settingsText .= "; Speak mode changes when switching Standard/Arena and Battlegrounds.`r`n"
+        settingsText .= "SpeakModeChanges=" BoolToString(SpeakModeChanges) "`r`n`r`n"
+        settingsText .= "; Enable holding View+Menu/Start to exit the mapper.`r`n"
+        settingsText .= "EnableExitCombo=" BoolToString(EnableExitCombo) "`r`n`r`n"
+        settingsText .= "; Only send keys while Hearthstone is active. Set false only for troubleshooting.`r`n"
+        settingsText .= "EnableHearthstoneWindowCheck=" BoolToString(EnableHearthstoneWindowCheck) "`r`n`r`n"
+        settingsText .= "; Hearthstone window matcher used when EnableHearthstoneWindowCheck is true.`r`n"
+        settingsText .= "HearthstoneExe=" HearthstoneExe "`r`n`r`n"
+        settingsText .= "[Advanced]`r`n"
+        settingsText .= "; Enable optional stick-click info shortcuts. Required for attack-face shortcuts below.`r`n"
+        settingsText .= "EnableStickClickInfo=" BoolToString(EnableStickClickInfo) "`r`n`r`n"
+        settingsText .= "; Enable RT+L3 and RT+R3 attack-face shortcuts. Off by default to prevent accidental attacks.`r`n"
+        settingsText .= "EnableAttackFaceShortcuts=" BoolToString(EnableAttackFaceShortcuts) "`r`n"
+        FileDelete(ConfigFile)
+        FileAppend(settingsText, ConfigFile, "UTF-8")
+        return
+    }
 
     IniWrite(CurrentMode, ConfigFile, "General", "CurrentMode")
     IniWrite(InputBackend, ConfigFile, "General", "InputBackend")
@@ -227,7 +263,7 @@ LoadSettings() {
 
     DirCreate(ConfigDir)
     if (!FileExist(ConfigFile))
-        WriteDefaultSettings()
+        WriteDefaultSettings(true)
 
     mode := StrLower(Trim(IniRead(ConfigFile, "General", "CurrentMode", CurrentMode)))
     CurrentMode := (mode = "battlegrounds") ? "battlegrounds" : "standard"
@@ -318,7 +354,7 @@ TrayReloadSettings(*) {
 TrayOpenSettings(*) {
     global ConfigFile
     if (!FileExist(ConfigFile))
-        WriteDefaultSettings()
+        WriteDefaultSettings(true)
     Run("notepad.exe `"" ConfigFile "`"")
 }
 
