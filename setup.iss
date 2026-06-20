@@ -3,7 +3,7 @@
 ;
 ; Expected files next to this script before compiling:
 ;   RogAlly_Hearthstone_Controller.exe        required
-;   readme.html                              recommended
+;   readme.html                              recommended; should contain the latest release notes
 ;   LICENSE                                  recommended
 ;   Controller_Diagnostic.exe                optional, if you compile the diagnostic too
 ;

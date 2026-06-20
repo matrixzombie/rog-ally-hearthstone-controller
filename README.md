@@ -401,7 +401,7 @@ To build the installer on Windows:
 
 1. Compile `RogAlly_Hearthstone_Controller.ahk` to `RogAlly_Hearthstone_Controller.exe` with AutoHotkey v2 Ahk2Exe.
 2. Optional: compile `Controller_Diagnostic.ahk` to `Controller_Diagnostic.exe`.
-3. Generate or place `readme.html` next to `setup.iss` if you want HTML README included.
+3. Generate or place `readme.html` next to `setup.iss`. For releases, this should be the HTML version of the latest GitHub release notes.
 4. Install **Inno Setup 6**.
 5. Open `setup.iss` in Inno Setup and compile it.
 6. The installer is written to:
