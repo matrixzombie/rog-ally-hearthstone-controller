@@ -9,6 +9,7 @@ Desktop.ini
 *.log
 *.exe
 readme.html
+release-notes.txt
 dist/
 
 # Archives people may build locally

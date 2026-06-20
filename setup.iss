@@ -3,7 +3,8 @@
 ;
 ; Expected files next to this script before compiling:
 ;   RogAlly_Hearthstone_Controller.exe        required
-;   readme.html                              recommended; should contain the latest release notes
+;   readme.html                              recommended; HTML release notes opened after install / from Start Menu
+;   release-notes.txt                       optional; plain-text release notes for the Inno wizard page
 ;   LICENSE                                  recommended
 ;   Controller_Diagnostic.exe                optional, if you compile the diagnostic too
 ;
@@ -36,8 +37,8 @@ AllowNoIcons=yes
 #ifexist "LICENSE"
 LicenseFile=LICENSE
 #endif
-#ifexist "readme.html"
-InfoAfterFile=readme.html
+#ifexist "release-notes.txt"
+InfoAfterFile=release-notes.txt
 #endif
 UninstallDisplayIcon={app}\{#MyAppExeName}
 UninstallDisplayName={#MyAppName}
@@ -63,6 +64,7 @@ Name: "launchatstartup"; Description: "Start the mapper when I sign in to Window
 Source: "{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "LICENSE"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "readme.html"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
+Source: "release-notes.txt"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "{#MyDiagnosticExeName}"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 
@@ -75,6 +77,7 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDi
 Name: "{userstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Tasks: launchatstartup
 
 [Run]
+Filename: "{app}\readme.html"; Description: "View release notes"; Flags: shellexec postinstall skipifsilent unchecked; Check: ReadmeInstalled
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent unchecked
 
 [InstallDelete]
