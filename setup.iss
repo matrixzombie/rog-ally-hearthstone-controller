@@ -33,12 +33,15 @@ DefaultDirName={localappdata}\Programs\{#MyAppShortName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=no
 AllowNoIcons=yes
+#ifexist "LICENSE"
 LicenseFile=LICENSE
+#endif
+#ifexist "readme.html"
 InfoAfterFile=readme.html
+#endif
 UninstallDisplayIcon={app}\{#MyAppExeName}
 UninstallDisplayName={#MyAppName}
 PrivilegesRequired=lowest
-ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 OutputDir=dist
 OutputBaseFilename={#MyAppShortName}-setup
