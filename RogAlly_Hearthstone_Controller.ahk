@@ -236,8 +236,9 @@ WriteDefaultSettings(includeComments := false) {
         settingsText .= "EnableStickClickInfo=" BoolToString(EnableStickClickInfo) "`r`n`r`n"
         settingsText .= "; Enable RT+L3 and RT+R3 attack-face shortcuts. Off by default to prevent accidental attacks.`r`n"
         settingsText .= "EnableAttackFaceShortcuts=" BoolToString(EnableAttackFaceShortcuts) "`r`n"
-        FileDelete(ConfigFile)
-        FileAppend(settingsText, ConfigFile, "UTF-8")
+        settingsFile := FileOpen(ConfigFile, "w", "UTF-8")
+        settingsFile.Write(settingsText)
+        settingsFile.Close()
         return
     }
 
