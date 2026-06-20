@@ -3,10 +3,13 @@
 Thumbs.db
 Desktop.ini
 
-# AutoHotkey generated/local files
+# AutoHotkey/Inno generated/local files
 *.bak
 *.tmp
 *.log
+*.exe
+readme.html
+dist/
 
 # Archives people may build locally
 *.zip

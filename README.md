@@ -389,6 +389,29 @@ Check these in order:
 5. Make sure Armoury Crate / Command Center is set to **Gamepad Mode** and the embedded controller is enabled.
 6. On a ROG Ally X, update Armoury Crate SE and ASUS controller/firmware components if the diagnostic does not see controller input.
 
+## Building the Windows installer
+
+The repo includes an Inno Setup script:
+
+```text
+setup.iss
+```
+
+To build the installer on Windows:
+
+1. Compile `RogAlly_Hearthstone_Controller.ahk` to `RogAlly_Hearthstone_Controller.exe` with AutoHotkey v2 Ahk2Exe.
+2. Optional: compile `Controller_Diagnostic.ahk` to `Controller_Diagnostic.exe`.
+3. Generate or place `readme.html` next to `setup.iss` if you want HTML README included.
+4. Install **Inno Setup 6**.
+5. Open `setup.iss` in Inno Setup and compile it.
+6. The installer is written to:
+
+```text
+dist\rog-ally-hearthstone-controller-setup.exe
+```
+
+The installer uses a per-user install location under `%LOCALAPPDATA%\Programs`, so it should not require administrator rights.
+
 ## Install/use
 
 1. Install **AutoHotkey v2** on the ROG Ally or Windows PC.
